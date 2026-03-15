@@ -1,5 +1,5 @@
 ﻿using Application.DTOs;
-using Domain.Interfaces;
+using Domain.Interfaces.Old;
 
 namespace Application.Services;
 

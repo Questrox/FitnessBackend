@@ -7,8 +7,9 @@ using System.Threading.Tasks;
 
 namespace Domain.Interfaces
 {
-    public interface IUserRepository : IRepository<User>
+    public interface IPaymentRepository : IRepository<Payment>
     {
-        Task<User> GetUserByIdAsync(string id);
+        Task<IEnumerable<Payment>> GetClientPayments(int clientId);
+        Task<Payment?> GetPaymentById(int id);
     }
 }

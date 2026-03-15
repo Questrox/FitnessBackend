@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Domain.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities
 {
-    public class TrainingType
+    public class TrainingType : ISoftDeletable
     {
         public TrainingType()
         {
@@ -20,5 +21,6 @@ namespace Domain.Entities
         public string Description { get; set; } = null!;
         public int CashbackPercentage { get; set; }
         public virtual ICollection<Training> Trainings { get; set; }
+        public bool IsDeleted { get; set; } = false;
     }
 }

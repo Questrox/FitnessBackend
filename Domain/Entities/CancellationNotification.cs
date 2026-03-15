@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Domain.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities
 {
-    public class CancellationNotification
+    public class CancellationNotification : ISoftDeletable
     {
         [Key]
         public int Id { get; set; }
@@ -16,5 +17,6 @@ namespace Domain.Entities
         public virtual Training? Training { get; set; }
         public int ClientId { get; set; }
         public virtual Client? Client { get; set; }
+        public bool IsDeleted { get; set; } = false;
     }
 }

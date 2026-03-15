@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Domain.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities
 {
-    public class Training
+    public class Training : ISoftDeletable
     {
         public Training()
         {
@@ -26,5 +27,6 @@ namespace Domain.Entities
         public virtual TrainingStatus? TrainingStatus { get; set; }
         public virtual ICollection<TrainingReservation> TrainingReservations { get; set; }
         public virtual ICollection<CancellationNotification> CancellationNotifications { get; set; }
+        public bool IsDeleted { get; set; } = false;
     }
 }

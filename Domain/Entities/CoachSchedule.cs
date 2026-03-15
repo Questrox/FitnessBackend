@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Domain.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities
 {
-    public class CoachSchedule
+    public class CoachSchedule : ISoftDeletable
     {
         [Key]
         public int Id { get; set; }
@@ -16,5 +17,6 @@ namespace Domain.Entities
         public TimeSpan EndTime { get; set; }
         public int CoachId { get; set; }
         public virtual Coach? Coach { get; set; }
+        public bool IsDeleted { get; set; } = false;
     }
 }

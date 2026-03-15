@@ -8,10 +8,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Identity;
 using System.Text.Json.Serialization;
 using Domain.Entities.Old;
+using Domain.Interfaces;
 
 namespace Domain.Entities
 {
-    public class User : IdentityUser
+    public class User : IdentityUser, ISoftDeletable
     {
         public User()
         {
@@ -23,6 +24,6 @@ namespace Domain.Entities
         public virtual ICollection<Client> Clients { get; set; }
         [JsonIgnore]
         public virtual ICollection<Coach> Coaches { get; set; }
-
+        public bool IsDeleted { get; set; } = false;
     }
 }

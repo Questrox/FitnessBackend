@@ -7,8 +7,9 @@ using System.Threading.Tasks;
 
 namespace Domain.Interfaces
 {
-    public interface IUserRepository : IRepository<User>
+    public interface ICoachRepository : IRepository<Coach>
     {
-        Task<User> GetUserByIdAsync(string id);
+        Task<IEnumerable<Coach>> GetCoachesAsync();
+        Task<Coach?> GetCoachByIdAsync(int id);
     }
 }

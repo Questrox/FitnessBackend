@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Domain.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities
 {
-    public class Membership
+    public class Membership : ISoftDeletable
     {
         [Key]
         public int Id { get; set; }
@@ -19,5 +20,6 @@ namespace Domain.Entities
         public virtual MembershipType? MembershipType { get; set; }
         public int PaymentId { get; set; }
         public virtual Payment? Payment { get; set; }
+        public bool IsDeleted { get; set; } = false;
     }
 }

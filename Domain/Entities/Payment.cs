@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Domain.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities
 {
-    public class Payment
+    public class Payment : ISoftDeletable
     {
         public Payment()
         {
@@ -22,5 +23,6 @@ namespace Domain.Entities
         public decimal PaidWithBonuses { get; set; }
         public virtual ICollection<Membership> Memberships { get; set; }
         public virtual ICollection<TrainingReservation> TrainingReservations { get; set; }
+        public bool IsDeleted { get; set; } = false;
     }
 }
