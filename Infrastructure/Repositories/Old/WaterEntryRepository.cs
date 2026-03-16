@@ -1,6 +1,6 @@
 ﻿using Domain.Entities.Old;
 using Domain.Interfaces.Old;
-using Infrastructure.Data;
+using Infrastructure.Data.Old;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;

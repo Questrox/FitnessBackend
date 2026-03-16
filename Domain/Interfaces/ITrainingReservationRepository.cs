@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace Domain.Interfaces
 {
-    public interface ITrainingReservation : IRepository<TrainingReservation>
+    public interface ITrainingReservationRepository : IRepository<TrainingReservation>
     {
         Task<IEnumerable<TrainingReservation>> GetClientReservations(int clientId);
-        Task<TrainingReservation> GetReservationById(int id);
+        Task<TrainingReservation?> GetReservationById(int id);
     }
 }

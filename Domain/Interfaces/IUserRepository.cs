@@ -9,6 +9,6 @@ namespace Domain.Interfaces
 {
     public interface IUserRepository : IRepository<User>
     {
-        Task<User> GetUserByIdAsync(string id);
+        Task<User?> GetUserByIdAsync(string id);
     }
 }

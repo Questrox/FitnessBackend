@@ -3,7 +3,7 @@ using Domain.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Domain.Entities.Old;
 
-namespace Infrastructure.Data
+namespace Infrastructure.Data.Old
 {
     public class CaloriesDb : IdentityDbContext<User>
     {
