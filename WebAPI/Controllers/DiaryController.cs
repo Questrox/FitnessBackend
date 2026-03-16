@@ -1,4 +1,4 @@
-﻿using Application.DTOs;
+﻿using Application.Models.Old;
 using Application.Services;
 using Domain.Entities;
 using Microsoft.AspNetCore.Authorization;

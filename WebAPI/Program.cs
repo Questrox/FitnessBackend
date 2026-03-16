@@ -1,7 +1,6 @@
 using Application.Services;
 using Domain.Entities;
 using Infrastructure.Data;
-using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -12,6 +11,7 @@ using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using Domain.Interfaces.Old;
 using Domain.Interfaces;
+using Infrastructure.Repositories.Old;
 
 
 var builder = WebApplication.CreateBuilder(args);

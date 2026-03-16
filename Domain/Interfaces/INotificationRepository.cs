@@ -10,6 +10,7 @@ namespace Domain.Interfaces
     public interface INotificationRepository : IRepository<CancellationNotification>
     {
         Task<IEnumerable<CancellationNotification>> GetNotificationsAsync();
+        Task<IEnumerable<CancellationNotification>> GetActiveNotificationsAsync();
         Task<CancellationNotification?> GetNotificationByIdAsync(int id);
     }
 }

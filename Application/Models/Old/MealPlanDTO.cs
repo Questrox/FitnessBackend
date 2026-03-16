@@ -7,7 +7,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace Application.DTOs
+namespace Application.Models.Old
 {
     public class MealPlanDTO
     {
