@@ -9,11 +9,7 @@ namespace Application.Models.DTOs
 {
     public class PaymentDTO
     {
-        public PaymentDTO()
-        {
-            Memberships = new HashSet<MembershipDTO>();
-            TrainingReservations = new HashSet<TrainingReservationDTO>();
-        }
+        public PaymentDTO() { }
 
         public PaymentDTO(Payment p)
         {
@@ -23,13 +19,9 @@ namespace Application.Models.DTOs
             CashbackPercentage = p.CashbackPercentage;
             PaidWithBonuses = p.PaidWithBonuses;
 
-            Memberships = p.Memberships
-                .Select(x => new MembershipDTO(x))
-                .ToList();
+            Membership = p.Membership == null ? null : new MembershipDTO(p.Membership);
 
-            TrainingReservations = p.TrainingReservations
-                .Select(x => new TrainingReservationDTO(x))
-                .ToList();
+            TrainingReservation = p.TrainingReservation == null ? null : new TrainingReservationDTO(p.TrainingReservation);
         }
 
         public PaymentDTO(PaymentDTO p)
@@ -39,8 +31,8 @@ namespace Application.Models.DTOs
             Price = p.Price;
             CashbackPercentage = p.CashbackPercentage;
             PaidWithBonuses = p.PaidWithBonuses;
-            Memberships = p.Memberships;
-            TrainingReservations = p.TrainingReservations;
+            Membership = p.Membership;
+            TrainingReservation = p.TrainingReservation;
         }
 
         public int Id { get; set; }
@@ -53,8 +45,8 @@ namespace Application.Models.DTOs
 
         public decimal PaidWithBonuses { get; set; }
 
-        public virtual ICollection<MembershipDTO> Memberships { get; set; }
+        public virtual MembershipDTO? Membership { get; set; }
 
-        public virtual ICollection<TrainingReservationDTO> TrainingReservations { get; set; }
+        public virtual TrainingReservationDTO? TrainingReservation { get; set; }
     }
 }

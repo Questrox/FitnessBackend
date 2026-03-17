@@ -9,11 +9,7 @@ namespace Application.Models.DTOs
 {
     public class UserDTO
     {
-        public UserDTO()
-        {
-            Clients = new HashSet<ClientDTO>();
-            Coaches = new HashSet<CoachDTO>();
-        }
+        public UserDTO() { }
 
         public UserDTO(User u)
         {
@@ -23,13 +19,9 @@ namespace Application.Models.DTOs
             PhoneNumber = u.PhoneNumber;
             FullName = u.FullName;
 
-            Clients = u.Clients
-                .Select(x => new ClientDTO(x))
-                .ToList();
+            Client = u.Client == null ? null : new ClientDTO(u.Client);
 
-            Coaches = u.Coaches
-                .Select(x => new CoachDTO(x))
-                .ToList();
+            Coach = u.Coach == null ? null : new CoachDTO(u.Coach);
         }
 
         public UserDTO(UserDTO u)
@@ -39,8 +31,8 @@ namespace Application.Models.DTOs
             UserName = u.UserName;
             PhoneNumber = u.PhoneNumber;
             FullName = u.FullName;
-            Clients = u.Clients;
-            Coaches = u.Coaches;
+            Client = u.Client;
+            Coach = u.Coach;
         }
 
         public string Id { get; set; } = null!;
@@ -53,8 +45,8 @@ namespace Application.Models.DTOs
 
         public string FullName { get; set; } = null!;
 
-        public virtual ICollection<ClientDTO> Clients { get; set; }
+        public virtual ClientDTO? Client { get; set; }
 
-        public virtual ICollection<CoachDTO> Coaches { get; set; }
+        public virtual CoachDTO? Coach { get; set; }
     }
 }
