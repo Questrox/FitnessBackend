@@ -58,15 +58,15 @@ namespace Infrastructure.Data
             // Client -> User
             modelBuilder.Entity<Client>()
                 .HasOne(c => c.User)
-                .WithMany(u => u.Clients)
-                .HasForeignKey(c => c.UserId)
+                .WithOne(u => u.Client)
+                .HasForeignKey<Client>(c => c.UserId)
                 .OnDelete(DeleteBehavior.SetNull);
 
             // Coach -> User
             modelBuilder.Entity<Coach>()
                 .HasOne(c => c.User)
-                .WithMany(u => u.Coaches)
-                .HasForeignKey(c => c.UserId)
+                .WithOne(u => u.Coach)
+                .HasForeignKey<Coach>(c => c.UserId)
                 .OnDelete(DeleteBehavior.SetNull);
 
             // CoachSchedule -> Coach
@@ -93,8 +93,8 @@ namespace Infrastructure.Data
             // Membership -> Payment
             modelBuilder.Entity<Membership>()
                 .HasOne(m => m.Payment)
-                .WithMany(p => p.Memberships)
-                .HasForeignKey(m => m.PaymentId)
+                .WithOne(p => p.Membership)
+                .HasForeignKey<Membership>(m => m.PaymentId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             // Training -> Coach
@@ -135,8 +135,8 @@ namespace Infrastructure.Data
             // TrainingReservation -> Payment
             modelBuilder.Entity<TrainingReservation>()
                 .HasOne(tr => tr.Payment)
-                .WithMany(p => p.TrainingReservations)
-                .HasForeignKey(tr => tr.PaymentId)
+                .WithOne(p => p.TrainingReservation)
+                .HasForeignKey<TrainingReservation>(tr => tr.PaymentId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             // TrainingReservation -> ReservationStatus

@@ -14,16 +14,12 @@ namespace Domain.Entities
 {
     public class User : IdentityUser, ISoftDeletable
     {
-        public User()
-        {
-            Clients = new HashSet<Client>();
-            Coaches = new HashSet<Coach>();
-        }
+        public User() { }
         public string FullName { get; set; } = null!;
         [JsonIgnore]
-        public virtual ICollection<Client> Clients { get; set; }
+        public virtual Client? Client { get; set; }
         [JsonIgnore]
-        public virtual ICollection<Coach> Coaches { get; set; }
+        public virtual Coach? Coach { get; set; }
         public bool IsDeleted { get; set; } = false;
     }
 }

@@ -10,19 +10,15 @@ namespace Domain.Entities
 {
     public class Payment : ISoftDeletable
     {
-        public Payment()
-        {
-            Memberships = new HashSet<Membership>();
-            TrainingReservations = new HashSet<TrainingReservation>();
-        }
+        public Payment() { }
         [Key]
         public int Id { get; set; }
         public DateTime Date { get; set; }
         public decimal Price { get; set; }
         public int CashbackPercentage { get; set; }
         public decimal PaidWithBonuses { get; set; }
-        public virtual ICollection<Membership> Memberships { get; set; }
-        public virtual ICollection<TrainingReservation> TrainingReservations { get; set; }
+        public virtual Membership? Membership { get; set; }
+        public virtual TrainingReservation? TrainingReservation { get; set; }
         public bool IsDeleted { get; set; } = false;
     }
 }
