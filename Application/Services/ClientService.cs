@@ -1,0 +1,70 @@
+﻿using Application.Models.CreateDTOs;
+using Application.Models.DTOs;
+using Domain.Entities;
+using Domain.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Application.Services
+{
+    public class ClientService(IClientRepository _clientRep)
+    {
+        public async Task<IEnumerable<ClientDTO>> GetClientsAsync()
+        {
+            var clients = await _clientRep.GetClientsAsync();
+            return clients.Select(c => new ClientDTO(c));
+        }
+        public async Task<IEnumerable<ClientDTO>> GetSortedClientsByPhoneAsync(string phone)
+        {
+            var clients = await _clientRep.GetSortedClientsByPhoneAsync(phone);
+            return clients.Select(c => new ClientDTO(c));
+        }
+        public async Task<ClientDTO?> GetClientByPhoneAsync(string phone)
+        {
+            var client = await _clientRep.GetClientByPhoneAsync(phone);
+            return client == null ? null : new ClientDTO(client);
+        }
+        public async Task<ClientDTO> AddClientAsync(CreateClientDTO client)
+        {
+            var newClient = new Client
+            {
+                Bonuses = client.Bonuses,
+                FullName = client.FullName,
+                PhoneNumber = client.PhoneNumber,
+                ConfirmationCode = client.ConfirmationCode,
+                UserId = client.UserId
+            };
+            await _clientRep.AddAsync(newClient);
+            newClient = await _clientRep.GetClientByIdAsync(newClient.Id);
+            return new ClientDTO(newClient);
+        }
+        public async Task<ClientDTO> UpdateClientAsync(ClientDTO client)
+        {
+            var existingClient = await _clientRep.GetClientByIdAsync(client.Id) ??
+                throw new KeyNotFoundException($"Клиент с Id {client.Id} не найден");
+            existingClient.Bonuses = client.Bonuses;
+            existingClient.FullName = client.FullName;
+            existingClient.PhoneNumber = client.PhoneNumber;
+            existingClient.ConfirmationCode = client.ConfirmationCode;
+            existingClient.UserId = client.UserId;
+
+            await _clientRep.UpdateAsync(existingClient);
+            return new ClientDTO(existingClient);
+        }
+        public async Task DeleteClient(int clientId)
+        {
+            var client = await _clientRep.GetClientByIdAsync(clientId) ?? 
+                throw new KeyNotFoundException($"Клиент с Id {clientId} не найден");
+            await _clientRep.DeleteAsync(client);
+        }
+        public async Task SoftDeleteClient(int clientId)
+        {
+            var client = await _clientRep.GetClientByIdAsync(clientId) ??
+                throw new KeyNotFoundException($"Клиент с Id {clientId} не найден");
+            await _clientRep.SoftDeleteAsync(client);
+        }
+    }
+}

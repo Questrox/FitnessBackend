@@ -7,6 +7,12 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities
 {
+    public enum TrainingStatusEnum
+    {
+        Pending = 1,
+        Completed = 2,
+        Cancelled = 3
+    }
     public class TrainingStatus
     {
         public TrainingStatus()

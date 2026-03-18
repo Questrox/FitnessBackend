@@ -15,8 +15,9 @@ namespace Infrastructure.Repositories
         public PaymentRepository(FitnessDb db) : base(db) { }
         public async Task<IEnumerable<Payment>> GetClientPayments(int clientId)
         {
-            return await _dbSet.Where(p => p.Memberships.Any(m => m.ClientId == clientId) ||
-                    p.TrainingReservations.Any(tr => tr.ClientId == clientId)).ToListAsync();
+            return await _dbSet.Where(p =>
+            (p.Membership != null && p.Membership.ClientId == clientId) ||
+            (p.TrainingReservation != null && p.TrainingReservation.ClientId == clientId)).ToListAsync();
         }
         public async Task<Payment?> GetPaymentById(int id)
             => await _dbSet.FirstOrDefaultAsync(x => x.Id == id);

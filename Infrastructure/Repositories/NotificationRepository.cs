@@ -14,11 +14,11 @@ namespace Infrastructure.Repositories
     {
         public NotificationRepository(FitnessDb db) : base(db) { }
         public async Task<IEnumerable<CancellationNotification>> GetNotificationsAsync()
-            => await _dbSet.Include(n => n.Client).Include(n => n.TrainingId).ToListAsync();
+            => await _dbSet.Include(n => n.Client).Include(n => n.Training).ToListAsync();
         public async Task<IEnumerable<CancellationNotification>> GetActiveNotificationsAsync()
-            => await _dbSet.Include(n => n.Client).Include(n => n.TrainingId)
+            => await _dbSet.Include(n => n.Client).Include(n => n.Training)
             .Where(n => !n.IsNotified).ToListAsync();
         public async Task<CancellationNotification?> GetNotificationByIdAsync(int id)
-            => await _dbSet.Include(n => n.Client).Include(n => n.TrainingId).FirstOrDefaultAsync(n => n.Id == id);
+            => await _dbSet.Include(n => n.Client).Include(n => n.Training).FirstOrDefaultAsync(n => n.Id == id);
     }
 }

@@ -2,7 +2,7 @@
 using Domain.Entities;
 using Domain.Interfaces.Old;
 
-namespace Application.Services;
+namespace Application.Services.Old;
 
 public class WaterEntryService
 {

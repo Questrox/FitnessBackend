@@ -1,7 +1,7 @@
 ﻿using Application.Models.Old;
 using Domain.Interfaces.Old;
 
-namespace Application.Services;
+namespace Application.Services.Old;
 
 public class MealPlanService
 {

@@ -7,6 +7,13 @@ using System.Threading.Tasks;
 
 namespace Domain.Entities
 {
+    public enum ReservationStatusEnum
+    {
+        Pending = 1,
+        Visited = 2,
+        Paid = 3,
+        Cancelled = 4
+    }
     public class ReservationStatus
     {
         public ReservationStatus()

@@ -1,7 +1,7 @@
 ﻿using Application.Models.Old;
 using Domain.Interfaces;
 
-namespace Application.Services;
+namespace Application.Services.Old;
 
 /// <summary>
 /// Сервис для управления пользователями
