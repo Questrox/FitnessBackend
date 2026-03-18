@@ -54,97 +54,97 @@ namespace Infrastructure.Data.Old
     {
         public static async Task Initialize(CaloriesDb context, UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
         {
-            #region Пользователи
-            // Проверяем наличие ролей
-            if (!roleManager.Roles.Any())
-            {
-                await roleManager.CreateAsync(new IdentityRole("admin"));
-                await roleManager.CreateAsync(new IdentityRole("user"));
-            }
+            //#region Пользователи
+            //// Проверяем наличие ролей
+            //if (!roleManager.Roles.Any())
+            //{
+            //    await roleManager.CreateAsync(new IdentityRole("admin"));
+            //    await roleManager.CreateAsync(new IdentityRole("user"));
+            //}
 
-            // Проверяем наличие пользователей
-            if (!userManager.Users.Any())
-            {
-                var user = new User
-                {
-                    UserName = "user",
-                    Email = "user@example.com",
-                    FullName = "Иванов Иван Иванович",
-                };
-                await userManager.CreateAsync(user, "User@123");
-                await userManager.AddToRoleAsync(user, "user");
-            }
-            #endregion
+            //// Проверяем наличие пользователей
+            //if (!userManager.Users.Any())
+            //{
+            //    var user = new User
+            //    {
+            //        UserName = "user",
+            //        Email = "user@example.com",
+            //        FullName = "Иванов Иван Иванович",
+            //    };
+            //    await userManager.CreateAsync(user, "User@123");
+            //    await userManager.AddToRoleAsync(user, "user");
+            //}
+            //#endregion
 
-            #region Еда
-            if (!context.Foods.Any())
-            {
-                var foodJson = File.ReadAllText("nutritional_database_translated.json");
-                var foods = JsonSerializer.Deserialize<Dictionary<string, FoodInfo>>(foodJson);
+            //#region Еда
+            //if (!context.Foods.Any())
+            //{
+            //    var foodJson = File.ReadAllText("nutritional_database_translated.json");
+            //    var foods = JsonSerializer.Deserialize<Dictionary<string, FoodInfo>>(foodJson);
 
-                foreach (var item in foods)
-                {
-                    string english = item.Key;
-                    var info = item.Value;
+            //    foreach (var item in foods)
+            //    {
+            //        string english = item.Key;
+            //        var info = item.Value;
 
-                    context.Foods.Add(new Food
-                    {
-                        Name = info.name,
-                        EngName = english,
-                        Calories = info.calories_per_100g,
-                        Protein = info.protein_per_100g,
-                        Fat = info.fat_per_100g,
-                        Carbs = info.carbs_per_100g,
-                        UserId = null // админский продукт
-                    }); ;
-                }
+            //        context.Foods.Add(new Food
+            //        {
+            //            Name = info.name,
+            //            EngName = english,
+            //            Calories = info.calories_per_100g,
+            //            Protein = info.protein_per_100g,
+            //            Fat = info.fat_per_100g,
+            //            Carbs = info.carbs_per_100g,
+            //            UserId = null // админский продукт
+            //        }); ;
+            //    }
 
-                await context.SaveChangesAsync();
-            }
-            #endregion
+            //    await context.SaveChangesAsync();
+            //}
+            //#endregion
 
-            #region Планы питания
+            //#region Планы питания
 
-            if (!context.MealPlans.Any())
-            {
-                var plansJson = File.ReadAllText("meal-plans-data.json");
-                var plans = JsonSerializer.Deserialize<List<MealPlanJson>>(plansJson);
+            //if (!context.MealPlans.Any())
+            //{
+            //    var plansJson = File.ReadAllText("meal-plans-data.json");
+            //    var plans = JsonSerializer.Deserialize<List<MealPlanJson>>(plansJson);
 
-                foreach (var p in plans)
-                {
-                    var entity = new MealPlan
-                    {
-                        Title = p.title,
-                        Description = p.description,
-                        FullDescription = p.fullDescription,
-                        BenefitsJson = JsonSerializer.Serialize(p.benefits),
-                        WarningsJson = p.warnings != null ? JsonSerializer.Serialize(p.warnings) : null,
-                        Calories = p.macros.calories,
-                        Protein = p.macros.protein,
-                        Fat = p.macros.fat,
-                        Carbs = p.macros.carbs
-                    };
+            //    foreach (var p in plans)
+            //    {
+            //        var entity = new MealPlan
+            //        {
+            //            Title = p.title,
+            //            Description = p.description,
+            //            FullDescription = p.fullDescription,
+            //            BenefitsJson = JsonSerializer.Serialize(p.benefits),
+            //            WarningsJson = p.warnings != null ? JsonSerializer.Serialize(p.warnings) : null,
+            //            Calories = p.macros.calories,
+            //            Protein = p.macros.protein,
+            //            Fat = p.macros.fat,
+            //            Carbs = p.macros.carbs
+            //        };
 
-                    context.MealPlans.Add(entity);
-                    await context.SaveChangesAsync();
+            //        context.MealPlans.Add(entity);
+            //        await context.SaveChangesAsync();
 
-                    foreach (var day in p.weekMenu)
-                    {
-                        context.MealPlanDays.Add(new MealPlanDay
-                        {
-                            MealPlanId = entity.Id,
-                            Day = day.day,
-                            Breakfast = day.breakfast,
-                            Lunch = day.lunch,
-                            Dinner = day.dinner,
-                            Snacks = day.snacks
-                        });
-                    }
-                }
+            //        foreach (var day in p.weekMenu)
+            //        {
+            //            context.MealPlanDays.Add(new MealPlanDay
+            //            {
+            //                MealPlanId = entity.Id,
+            //                Day = day.day,
+            //                Breakfast = day.breakfast,
+            //                Lunch = day.lunch,
+            //                Dinner = day.dinner,
+            //                Snacks = day.snacks
+            //            });
+            //        }
+            //    }
 
-                await context.SaveChangesAsync();
-            }
-            #endregion
+            //    await context.SaveChangesAsync();
+            //}
+            //#endregion
 
         }
     }

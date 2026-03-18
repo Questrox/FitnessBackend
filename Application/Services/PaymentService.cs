@@ -62,5 +62,12 @@ namespace Application.Services
 
             await _paymentRep.DeleteAsync(payment);
         }
+        public async Task SoftDeletePayment(int id)
+        {
+            var payment = await _paymentRep.GetPaymentById(id) ??
+                throw new KeyNotFoundException($"Платеж с Id {id} не найден");
+
+            await _paymentRep.SoftDeleteAsync(payment);
+        }
     }
 }

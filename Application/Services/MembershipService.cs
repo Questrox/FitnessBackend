@@ -70,5 +70,12 @@ namespace Application.Services
 
             await _membershipRep.DeleteAsync(membership);
         }
+        public async Task SoftDeleteMembership(int id)
+        {
+            var membership = await _membershipRep.GetMembershipByIdAsync(id) ??
+                throw new KeyNotFoundException($"Абонемент с Id {id} не найден");
+
+            await _membershipRep.SoftDeleteAsync(membership);
+        }
     }
 }

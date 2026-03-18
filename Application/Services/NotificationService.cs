@@ -66,5 +66,12 @@ namespace Application.Services
 
             await _notificationRep.DeleteAsync(notification);
         }
+        public async Task SoftDeleteNotification(int id)
+        {
+            var notification = await _notificationRep.GetNotificationByIdAsync(id) ??
+                throw new KeyNotFoundException($"Уведомление с Id {id} не найдено");
+
+            await _notificationRep.SoftDeleteAsync(notification);
+        }
     }
 }

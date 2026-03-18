@@ -62,5 +62,12 @@ namespace Application.Services
 
             await _trainingRep.DeleteAsync(training);
         }
+        public async Task SoftDeleteTraining(int id)
+        {
+            var training = await _trainingRep.GetTrainingByIdAsync(id) ??
+                throw new KeyNotFoundException($"Тренировка с Id {id} не найдена");
+
+            await _trainingRep.SoftDeleteAsync(training);
+        }
     }
 }

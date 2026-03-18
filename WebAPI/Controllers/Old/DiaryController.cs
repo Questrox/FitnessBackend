@@ -7,12 +7,12 @@ using System.Security.Claims;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
-namespace WebAPI.Controllers
+namespace WebAPI.Controllers.Old
 {
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    public class DiaryController(FoodService _foodService, FoodEntryService _foodEntryService, 
+    public class DiaryController(FoodService _foodService, FoodEntryService _foodEntryService,
         WaterEntryService _waterEntryService, ILogger<DiaryController> _logger) : ControllerBase
     {
         [HttpGet("[action]")]

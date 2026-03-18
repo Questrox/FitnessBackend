@@ -24,7 +24,7 @@ namespace Application.Services
             return schedule == null ? null : new CoachScheduleDTO(schedule);
         }
 
-        public async Task<CoachScheduleDTO> AddScheduleAsync(CreateCoachScheduleDTO schedule)
+        public async Task<CoachScheduleDTO> AddCoachScheduleAsync(CreateCoachScheduleDTO schedule)
         {
             var newSchedule = new CoachSchedule
             {
@@ -40,7 +40,7 @@ namespace Application.Services
             return new CoachScheduleDTO(newSchedule);
         }
 
-        public async Task<CoachScheduleDTO> UpdateScheduleAsync(CoachScheduleDTO schedule)
+        public async Task<CoachScheduleDTO> UpdateCoachScheduleAsync(CoachScheduleDTO schedule)
         {
             var existing = await _scheduleRep.GetCoachScheduleByIdAsync(schedule.Id) ??
                 throw new KeyNotFoundException($"Расписание с Id {schedule.Id} не найдено");
@@ -55,12 +55,19 @@ namespace Application.Services
             return new CoachScheduleDTO(existing);
         }
 
-        public async Task DeleteSchedule(int id)
+        public async Task DeleteCoachSchedule(int id)
         {
             var schedule = await _scheduleRep.GetCoachScheduleByIdAsync(id) ??
                 throw new KeyNotFoundException($"Расписание с Id {id} не найдено");
 
             await _scheduleRep.DeleteAsync(schedule);
+        }
+        public async Task SoftDeleteCoachSchedule(int id)
+        {
+            var schedule = await _scheduleRep.GetCoachScheduleByIdAsync(id) ??
+                throw new KeyNotFoundException($"Расписание с Id {id} не найдено");
+
+            await _scheduleRep.SoftDeleteAsync(schedule);
         }
     }
 }

@@ -58,5 +58,12 @@ namespace Application.Services
 
             await _reservationRep.DeleteAsync(reservation);
         }
+        public async Task SoftDeleteReservation(int id)
+        {
+            var reservation = await _reservationRep.GetReservationById(id) ??
+                throw new KeyNotFoundException($"Запись с Id {id} не найдена");
+
+            await _reservationRep.SoftDeleteAsync(reservation);
+        }
     }
 }
