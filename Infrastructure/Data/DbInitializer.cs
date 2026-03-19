@@ -8,7 +8,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace Infrastructure.Data.Old
+namespace Infrastructure.Data
 {
     #region Классы для чтения json
     public class FoodInfo
@@ -52,7 +52,7 @@ namespace Infrastructure.Data.Old
 
     public static class DbInitializer
     {
-        public static async Task Initialize(CaloriesDb context, UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
+        public static async Task Initialize(FitnessDb context, UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
         {
             //#region Пользователи
             //// Проверяем наличие ролей
