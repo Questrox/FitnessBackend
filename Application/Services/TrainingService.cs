@@ -28,7 +28,6 @@ namespace Application.Services
         {
             var training = new Training
             {
-                MaxClients = dto.MaxClients,
                 Date = dto.Date,
                 CoachId = dto.CoachId,
                 TrainingTypeId = dto.TrainingTypeId
@@ -45,7 +44,6 @@ namespace Application.Services
             var existing = await _trainingRep.GetTrainingByIdAsync(dto.Id) ??
                 throw new KeyNotFoundException($"Тренировка с Id {dto.Id} не найдена");
 
-            existing.MaxClients = dto.MaxClients;
             existing.Date = dto.Date;
             existing.CoachId = dto.CoachId;
             existing.TrainingTypeId = dto.TrainingTypeId;

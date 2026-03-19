@@ -32,9 +32,6 @@ namespace Application.Services
             var newClient = new Client
             {
                 Bonuses = client.Bonuses,
-                FullName = client.FullName,
-                PhoneNumber = client.PhoneNumber,
-                ConfirmationCode = client.ConfirmationCode,
                 UserId = client.UserId
             };
             await _clientRep.AddAsync(newClient);
@@ -46,9 +43,6 @@ namespace Application.Services
             var existingClient = await _clientRep.GetClientByIdAsync(client.Id) ??
                 throw new KeyNotFoundException($"Клиент с Id {client.Id} не найден");
             existingClient.Bonuses = client.Bonuses;
-            existingClient.FullName = client.FullName;
-            existingClient.PhoneNumber = client.PhoneNumber;
-            existingClient.ConfirmationCode = client.ConfirmationCode;
             existingClient.UserId = client.UserId;
 
             await _clientRep.UpdateAsync(existingClient);

@@ -17,6 +17,7 @@ namespace Application.Models.DTOs
         public TrainingTypeDTO(TrainingType t)
         {
             Id = t.Id;
+            MaxClients = t.MaxClients;
             Price = t.Price;
             Name = t.Name;
             Description = t.Description;
@@ -30,6 +31,7 @@ namespace Application.Models.DTOs
         public TrainingTypeDTO(TrainingTypeDTO t)
         {
             Id = t.Id;
+            MaxClients = t.MaxClients;
             Price = t.Price;
             Name = t.Name;
             Description = t.Description;
@@ -38,6 +40,8 @@ namespace Application.Models.DTOs
         }
 
         public int Id { get; set; }
+
+        public int MaxClients { get; set; }
 
         public decimal Price { get; set; }
 

@@ -23,13 +23,13 @@ namespace Infrastructure.Repositories
         {
             return await _dbSet.Include(c => c.Memberships).ThenInclude(m => m.MembershipType)
                 .Include(c => c.TrainingReservations).ThenInclude(c => c.Training)
-                .Where(c => c.PhoneNumber.Contains(phone)).ToListAsync();
+                .Where(c => c.User.PhoneNumber.Contains(phone)).ToListAsync();
         }
         public async Task<Client?> GetClientByPhoneAsync(string phone)
         {
             return await _dbSet.Include(c => c.Memberships).ThenInclude(m => m.MembershipType)
                 .Include(c => c.TrainingReservations).ThenInclude(c => c.Training)
-                .FirstOrDefaultAsync(c => c.PhoneNumber == phone);
+                .FirstOrDefaultAsync(c => c.User.PhoneNumber == phone);
         }
         public async Task<Client?> GetClientByIdAsync(int id)
         {

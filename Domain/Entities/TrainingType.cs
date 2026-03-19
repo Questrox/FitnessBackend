@@ -16,6 +16,7 @@ namespace Domain.Entities
         }
         [Key]
         public int Id { get; set; }
+        public int MaxClients { get; set; }
         public decimal Price { get; set; }
         public string Name { get; set; } = null!;
         public string Description { get; set; } = null!;

@@ -18,7 +18,6 @@ namespace Application.Models.DTOs
         public TrainingDTO(Training t)
         {
             Id = t.Id;
-            MaxClients = t.MaxClients;
             Date = t.Date;
             CoachId = t.CoachId;
             TrainingTypeId = t.TrainingTypeId;
@@ -40,7 +39,6 @@ namespace Application.Models.DTOs
         public TrainingDTO(TrainingDTO t)
         {
             Id = t.Id;
-            MaxClients = t.MaxClients;
             Date = t.Date;
             CoachId = t.CoachId;
             TrainingTypeId = t.TrainingTypeId;
@@ -53,8 +51,6 @@ namespace Application.Models.DTOs
         }
 
         public int Id { get; set; }
-
-        public int MaxClients { get; set; }
 
         public DateTime Date { get; set; }
 

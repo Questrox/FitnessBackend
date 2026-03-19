@@ -17,7 +17,6 @@ namespace Domain.Entities
         }
         [Key]
         public int Id { get; set; }
-        public int MaxClients { get; set; }
         public DateTime Date {  get; set; }
         public int CoachId { get; set; }
         public int TrainingTypeId { get; set; }

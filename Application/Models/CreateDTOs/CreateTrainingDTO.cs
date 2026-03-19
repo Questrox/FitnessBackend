@@ -8,8 +8,6 @@ namespace Application.Models.CreateDTOs
 {
     public class CreateTrainingDTO
     {
-        public int MaxClients { get; set; }
-
         public DateTime Date { get; set; }
 
         public int CoachId { get; set; }

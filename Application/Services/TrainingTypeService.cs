@@ -28,6 +28,7 @@ namespace Application.Services
         {
             var type = new TrainingType
             {
+                MaxClients = dto.MaxClients,
                 Price = dto.Price,
                 Name = dto.Name,
                 Description = dto.Description,
@@ -45,6 +46,7 @@ namespace Application.Services
             var existing = await _typeRep.GetTrainingTypeByIdAsync(dto.Id) ??
                 throw new KeyNotFoundException($"Тип тренировки с Id {dto.Id} не найден");
 
+            existing.MaxClients = dto.MaxClients;
             existing.Price = dto.Price;
             existing.Name = dto.Name;
             existing.Description = dto.Description;

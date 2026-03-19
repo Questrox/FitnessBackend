@@ -19,9 +19,6 @@ namespace Domain.Entities
         [Key]
         public int Id { get; set; }
         public decimal Bonuses { get; set; }
-        public string FullName { get; set; } = null!;
-        public string PhoneNumber { get; set; } = null!;
-        public string ConfirmationCode { get; set; } = null!;
         public string? UserId { get; set; }
         public virtual User? User { get; set; }
         public virtual ICollection<Membership> Memberships { get; set; }

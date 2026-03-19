@@ -43,7 +43,7 @@ namespace WebAPI.Controllers
         public async Task<ActionResult<ClientDTO>> AddClient(CreateClientDTO client)
         {
             var userName = User.Identity?.IsAuthenticated == true ? User.Identity.Name : "Гость";
-            _logger.LogInformation($"Пользователь {userName} создает клиента с ФИО {client.FullName}");
+            _logger.LogInformation($"Пользователь {userName} создает клиента");
 
             var newClient = await _clientService.AddClientAsync(client);
             return Ok(newClient);

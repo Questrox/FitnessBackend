@@ -19,9 +19,6 @@ namespace Application.Models.DTOs
         {
             Id = c.Id;
             Bonuses = c.Bonuses;
-            FullName = c.FullName;
-            PhoneNumber = c.PhoneNumber;
-            ConfirmationCode = c.ConfirmationCode;
             UserId = c.UserId;
             User = c.User == null ? null : new UserDTO(c.User);
             Memberships = c.Memberships.Select(m => new MembershipDTO(m)).ToList();
@@ -32,9 +29,6 @@ namespace Application.Models.DTOs
         {
             Id = c.Id;
             Bonuses = c.Bonuses;
-            FullName = c.FullName;
-            PhoneNumber = c.PhoneNumber;
-            ConfirmationCode = c.ConfirmationCode;
             UserId = c.UserId;
             User = c.User;
             Memberships = c.Memberships;
@@ -43,9 +37,6 @@ namespace Application.Models.DTOs
         }
         public int Id { get; set; }
         public decimal Bonuses { get; set; }
-        public string FullName { get; set; } = null!;
-        public string PhoneNumber { get; set; } = null!;
-        public string ConfirmationCode { get; set; } = null!;
         public string? UserId { get; set; }
         public virtual UserDTO? User { get; set; }
         public virtual ICollection<MembershipDTO> Memberships { get; set; }
