@@ -11,6 +11,7 @@ using Domain.Interfaces;
 using Infrastructure.Data;
 using Application.Services;
 using Infrastructure.Repositories;
+using WebAPI.Middleware;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -42,8 +43,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("RequireAdminRole", policy => policy.RequireRole("admin"));
+    options.AddPolicy("RequireAdminRole", policy => policy.RequireRole("Admin"));
     options.AddPolicy("RequireRoleUser", policy => policy.RequireRole("User"));
+    options.AddPolicy("RequireCoachRole", policy => policy.RequireRole("Coach"));
 });
 
 #region Регистрация зависимостей
@@ -108,7 +110,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(c => 
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Hotel API V1");
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Fitness API V1");
         c.RoutePrefix = "swagger";
         // Swagger будет доступен на главной странице.
     }); //Включают UI Swagger по адресу swagger (и UseSwagger, и UseSwaggerUI)
@@ -118,6 +120,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization(); //Подключает JWT-Токены
+
+app.UseMiddleware<ExceptionMiddleware>();
 
 app.MapControllers(); //Маршрутизирует (мапит) запросы к API-контроллерам (атрибуты [HttpGet], [Authorize] и т.д.)
 
