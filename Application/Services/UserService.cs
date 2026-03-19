@@ -1,5 +1,4 @@
-﻿using Application.Models.Old;
-using Domain.Interfaces;
+﻿using Domain.Interfaces;
 
 namespace Application.Services;
 

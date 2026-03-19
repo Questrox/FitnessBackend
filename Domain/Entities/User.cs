@@ -7,7 +7,6 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Identity;
 using System.Text.Json.Serialization;
-using Domain.Entities.Old;
 using Domain.Interfaces;
 
 namespace Domain.Entities
