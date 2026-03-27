@@ -9,7 +9,8 @@ namespace WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class TrainingTypeController(TrainingTypeService _typeService, ILogger<TrainingTypeController> _logger) : ControllerBase
+    public class TrainingTypeController(TrainingTypeService _typeService, ILogger<TrainingTypeController> _logger,
+        IWebHostEnvironment _env) : ControllerBase
     {
         [HttpGet("[action]")]
         public async Task<ActionResult<IEnumerable<TrainingTypeDTO>>> GetTrainingTypes()
@@ -38,20 +39,20 @@ namespace WebAPI.Controllers
             var userName = User.Identity?.IsAuthenticated == true ? User.Identity.Name : "Гость";
             _logger.LogInformation($"Пользователь {userName} создаёт тип тренировки");
 
-            var newType = await _typeService.AddTrainingTypeAsync(type);
+            var newType = await _typeService.AddTrainingTypeAsync(type, _env);
             return Ok(newType);
         }
 
-        [HttpPut("[action]/{id}")]
-        public async Task<ActionResult<TrainingTypeDTO>> UpdateTrainingType(int id, TrainingTypeDTO type)
+        [HttpPut("[action]/{routeId}")]
+        public async Task<ActionResult<TrainingTypeDTO>> UpdateTrainingType(int routeId, TrainingTypeDTO type)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            if (id != type.Id) return BadRequest();
+            if (routeId != type.Id) return BadRequest();
 
             var userName = User.Identity?.IsAuthenticated == true ? User.Identity.Name : "Гость";
-            _logger.LogInformation($"Пользователь {userName} обновляет тип тренировки с id {id}");
+            _logger.LogInformation($"Пользователь {userName} обновляет тип тренировки с id {routeId}");
 
-            var updatedType = await _typeService.UpdateTrainingTypeAsync(type);
+            var updatedType = await _typeService.UpdateTrainingTypeAsync(type, _env);
             return Ok(updatedType);
         }
 

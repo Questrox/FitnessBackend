@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,5 +18,7 @@ namespace Application.Models.CreateDTOs
         public string Description { get; set; } = null!;
 
         public int CashbackPercentage { get; set; }
+        public int Duration { get; set; }
+        public IFormFile Image { get; set; } = null!;
     }
 }

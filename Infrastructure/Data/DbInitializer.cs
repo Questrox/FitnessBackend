@@ -60,7 +60,7 @@ namespace Infrastructure.Data
                 {
                     UserName = "client1",
                     Email = "client1@test.com",
-                    FullName = "Клиент 1",
+                    FullName = "Афонин Михаил Михайлович",
                     PhoneNumber = "+79082876591"
                 };
                 await userManager.CreateAsync(clientUser1, "User@123");
@@ -74,7 +74,7 @@ namespace Infrastructure.Data
                 {
                     UserName = "client2",
                     Email = "client2@test.com",
-                    FullName = "Клиент 2",
+                    FullName = "Егоров Алексей Юрьевич",
                     PhoneNumber = "+79658126366"
                 };
                 await userManager.CreateAsync(clientUser2, "User@123");
@@ -92,7 +92,7 @@ namespace Infrastructure.Data
                 {
                     UserName = "coach1",
                     Email = "coach1@test.com",
-                    FullName = "Тренер 1",
+                    FullName = "Шаров Александр Александрович",
                     PhoneNumber = "+79053767851"
                 };
                 await userManager.CreateAsync(coachUser1, "Coach@123");
@@ -106,7 +106,7 @@ namespace Infrastructure.Data
                 {
                     UserName = "coach2",
                     Email = "coach2@test.com",
-                    FullName = "Тренер 2",
+                    FullName = "Смирнов Антон Георгиевич",
                     PhoneNumber = "+79651850415"
                 };
                 await userManager.CreateAsync(coachUser2, "Coach@123");
@@ -127,8 +127,9 @@ namespace Infrastructure.Data
                         Description = "Классическая Хатха-йога в облегченном варианте, направлена на укрепление мышц позвоночного столба, " +
                         "восполнение амплитуды движения в крупных суставах, улучшение кровообращения, освоение базовых дыхательных техник.",
                         Price = 600,
-                        CashbackPercentage = 5,
-                        MaxClients = 15
+                        CashbackPercentage = 3,
+                        MaxClients = 15,
+                        PhotoPath = "images/TrainingTypes/Yoga.jpg"
                     },
                     new TrainingType
                     {
@@ -137,8 +138,9 @@ namespace Infrastructure.Data
                         "Тренировка выполняется в спокойном темпе, не провоцируя перенапряжения и учащенного сердцебиения. " +
                         "Во время занятий пилатесом задействованы мышцы и разум, под контролем которого выполняются движения.",
                         Price = 1000,
-                        CashbackPercentage = 10,
-                        MaxClients = 5
+                        CashbackPercentage = 7,
+                        MaxClients = 5,
+                        PhotoPath = "images/TrainingTypes/Pilates.jpg"
                     },
                     new TrainingType
                     {
@@ -148,23 +150,36 @@ namespace Infrastructure.Data
                         "Сюда приходят те, кто хочет похудеть, зарядиться энергией и начать вести активный образ жизни.",
                         Price = 700,
                         CashbackPercentage = 5,
-                        MaxClients = 10
+                        MaxClients = 10,
+                        PhotoPath = "images/TrainingTypes/Cycle.jpg"
+                    },
+                    new TrainingType
+                    {
+                        Name = "Кроссфит",
+                        Description = "Высокоинтенсивный вид спорта, включающий элементы кардио, аэробики, тяжелой атлетики, спортивной гимнастики и гребли. " +
+                        "Цель кроссфита – гармоничное развитие тела человека в сочетании с качественной физической подготовкой и выносливостью.",
+                        Price = 700,
+                        CashbackPercentage = 3,
+                        MaxClients = 10,
+                        PhotoPath = "images/TrainingTypes/Crossfit.jpeg"
                     },
                     new TrainingType
                     {
                         Name = "Индивидуальная тренировка (тренажерный зал)",
-                        Description = "Индивидуальная тренировка в тренером в тренажерном зале.",
+                        Description = "Индивидуальная тренировка с тренером в тренажерном зале.",
                         Price = 1500,
-                        CashbackPercentage = 10,
-                        MaxClients = 1
+                        CashbackPercentage = 7,
+                        MaxClients = 1,
+                        PhotoPath = "images/TrainingTypes/Тренажерный зал.jpg"
                     },
                     new TrainingType
                     {
                         Name = "Индивидуальная тренировка (бассейн)",
                         Description = "Индивидуальная тренировка с тренером в бассейне.",
                         Price = 1500,
-                        CashbackPercentage = 10,
-                        MaxClients = 1
+                        CashbackPercentage = 7,
+                        MaxClients = 1,
+                        PhotoPath = "images/TrainingTypes/Бассейн.jpg"
                     }
                 );
 

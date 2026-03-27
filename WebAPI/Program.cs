@@ -90,6 +90,8 @@ builder.Services.AddScoped<TrainingReservationService>();
 builder.Services.AddScoped<ITrainingTypeRepository, TrainingTypeRepository>();
 builder.Services.AddScoped<TrainingTypeService>();
 
+builder.Services.AddScoped<AuthService>();
+
 #endregion
 
 builder.Services.AddControllers(); //Регистрирует контроллеры: приложение будет обрабатывать http-запросы через контроллеры

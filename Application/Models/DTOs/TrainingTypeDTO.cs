@@ -1,4 +1,5 @@
 ﻿using Domain.Entities;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,6 +27,8 @@ namespace Application.Models.DTOs
             Trainings = t.Trainings
                 .Select(x => new TrainingDTO(x))
                 .ToList();
+            PhotoPath = t.PhotoPath;
+            Duration = t.Duration;
         }
 
         public TrainingTypeDTO(TrainingTypeDTO t)
@@ -37,6 +40,9 @@ namespace Application.Models.DTOs
             Description = t.Description;
             CashbackPercentage = t.CashbackPercentage;
             Trainings = t.Trainings;
+            PhotoPath = t.PhotoPath;
+            Duration = t.Duration;
+            Image = t.Image;
         }
 
         public int Id { get; set; }
@@ -48,6 +54,10 @@ namespace Application.Models.DTOs
         public string Name { get; set; } = null!;
 
         public string Description { get; set; } = null!;
+
+        public string PhotoPath { get; set; } = null!;
+        public IFormFile? Image { get; set; }
+        public int Duration { get; set; }
 
         public int CashbackPercentage { get; set; }
 

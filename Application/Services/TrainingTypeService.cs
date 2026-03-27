@@ -2,6 +2,7 @@
 using Application.Models.DTOs;
 using Domain.Entities;
 using Domain.Interfaces;
+using Microsoft.AspNetCore.Hosting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,7 +25,7 @@ namespace Application.Services
             return type == null ? null : new TrainingTypeDTO(type);
         }
 
-        public async Task<TrainingTypeDTO> AddTrainingTypeAsync(CreateTrainingTypeDTO dto)
+        public async Task<TrainingTypeDTO> AddTrainingTypeAsync(CreateTrainingTypeDTO dto, IWebHostEnvironment env)
         {
             var type = new TrainingType
             {
@@ -32,8 +33,29 @@ namespace Application.Services
                 Price = dto.Price,
                 Name = dto.Name,
                 Description = dto.Description,
-                CashbackPercentage = dto.CashbackPercentage
+                CashbackPercentage = dto.CashbackPercentage,
+                Duration = dto.Duration,
             };
+
+            if (dto.Image != null && dto.Image.Length > 0)
+            {
+                var uploadsFolder = Path.Combine(env.WebRootPath, "images", "TrainingTypes");
+
+                if (!Directory.Exists(uploadsFolder))
+                    Directory.CreateDirectory(uploadsFolder);
+
+                var uniqueFileName = $"{Guid.NewGuid()}{Path.GetExtension(dto.Image.FileName)}";
+                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await dto.Image.CopyToAsync(stream);
+                }
+
+                type.PhotoPath = $"images/TrainingTypes/{uniqueFileName}";
+            }
+            else
+                type.PhotoPath = "";
 
             await _typeRep.AddAsync(type);
             type = await _typeRep.GetTrainingTypeByIdAsync(type.Id);
@@ -41,7 +63,7 @@ namespace Application.Services
             return new TrainingTypeDTO(type);
         }
 
-        public async Task<TrainingTypeDTO> UpdateTrainingTypeAsync(TrainingTypeDTO dto)
+        public async Task<TrainingTypeDTO> UpdateTrainingTypeAsync(TrainingTypeDTO dto, IWebHostEnvironment env)
         {
             var existing = await _typeRep.GetTrainingTypeByIdAsync(dto.Id) ??
                 throw new KeyNotFoundException($"Тип тренировки с Id {dto.Id} не найден");
@@ -51,6 +73,33 @@ namespace Application.Services
             existing.Name = dto.Name;
             existing.Description = dto.Description;
             existing.CashbackPercentage = dto.CashbackPercentage;
+            existing.Duration = dto.Duration;
+
+            if (dto.Image != null && dto.Image.Length > 0)
+            {
+                // Удаляем старое изображение (если есть)
+                if (!string.IsNullOrEmpty(existing.PhotoPath))
+                {
+                    var oldFilePath = Path.Combine(env.WebRootPath, existing.PhotoPath);
+                    if (File.Exists(oldFilePath))
+                        File.Delete(oldFilePath);
+                }
+
+                // Загружаем новое (как в Create)
+                var uploadsFolder = Path.Combine(env.WebRootPath, "images", "TrainingTypes");
+                if (!Directory.Exists(uploadsFolder))
+                    Directory.CreateDirectory(uploadsFolder);
+
+                var uniqueFileName = $"{Guid.NewGuid()}{Path.GetExtension(dto.Image.FileName)}";
+                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await dto.Image.CopyToAsync(stream);
+                }
+
+                existing.PhotoPath = $"images/TrainingTypes/{uniqueFileName}";
+            }
 
             await _typeRep.UpdateAsync(existing);
 

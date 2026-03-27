@@ -21,6 +21,8 @@ namespace Domain.Entities
         public string Name { get; set; } = null!;
         public string Description { get; set; } = null!;
         public int CashbackPercentage { get; set; }
+        public int Duration { get; set; }
+        public string PhotoPath { get; set; }
         public virtual ICollection<Training> Trainings { get; set; }
         public bool IsDeleted { get; set; } = false;
     }
