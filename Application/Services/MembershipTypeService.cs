@@ -26,6 +26,16 @@ namespace Application.Services
 
         public async Task<MembershipTypeDTO> AddMembershipTypeAsync(CreateMembershipTypeDTO type)
         {
+            if (type.Price <= 0)
+                throw new ArgumentException($"Цена должна быть положительной. Текущая цена: {type.Price}");
+            if (type.CashbackPercentage < 0 || type.CashbackPercentage > 100)
+                throw new ArgumentException($"Процент кэшбека должен быть в пределах от 0 до 100. Текущий процент: {type.CashbackPercentage}");
+            if (type.Duration <= 0)
+                throw new ArgumentException($"Продолжительность в месяцах должна быть положительной. Текущая продолжительность: {type.Duration}");
+            if (type.Name.Length == 0)
+                throw new ArgumentException("Необходимо ввести название типа абонемента");
+            if (type.Description.Length == 0)
+                throw new ArgumentException("Необходимо ввести описание типа абонемента");
             var newType = new MembershipType
             {
                 Name = type.Name,
@@ -34,7 +44,6 @@ namespace Application.Services
                 CashbackPercentage = type.CashbackPercentage,
                 Duration = type.Duration
             };
-
             await _typeRep.AddAsync(newType);
             newType = await _typeRep.GetMembershipTypeById(newType.Id);
 
@@ -45,6 +54,17 @@ namespace Application.Services
         {
             var existing = await _typeRep.GetMembershipTypeById(type.Id) ??
                 throw new KeyNotFoundException($"Тип абонемента с Id {type.Id} не найден");
+
+            if (type.Price <= 0)
+                throw new ArgumentException($"Цена должна быть положительной. Текущая цена: {type.Price}");
+            if (type.CashbackPercentage < 0 || type.CashbackPercentage > 100)
+                throw new ArgumentException($"Процент кэшбека должен быть в пределах от 0 до 100. Текущий процент: {type.CashbackPercentage}");
+            if (type.Duration <= 0)
+                throw new ArgumentException($"Продолжительность в месяцах должна быть положительной. Текущая продолжительность: {type.Duration}");
+            if (type.Name.Length == 0)
+                throw new ArgumentException("Необходимо ввести название типа абонемента");
+            if (type.Description.Length == 0)
+                throw new ArgumentException("Необходимо ввести описание типа абонемента");
 
             existing.Name = type.Name;
             existing.Description = type.Description;

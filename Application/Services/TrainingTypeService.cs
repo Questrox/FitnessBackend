@@ -36,6 +36,18 @@ namespace Application.Services
                 CashbackPercentage = dto.CashbackPercentage,
                 Duration = dto.Duration,
             };
+            if (type.MaxClients <= 0)
+                throw new ArgumentException($"Количество клиентов должно быть положительным. Текущее количество: {type.MaxClients}");
+            if (type.Price < 0)
+                throw new ArgumentException($"Цена должна быть неотрицательной. Текущая цена: {type.Price}");
+            if (type.Name.Length == 0)
+                throw new ArgumentException("Необходимо ввести название типа тренировки");
+            if (type.Description.Length == 0)
+                throw new ArgumentException("Необходимо ввести описание типа тренировки");
+            if (type.CashbackPercentage < 0 || type.CashbackPercentage > 100)
+                throw new ArgumentException($"Процент кэшбека должен быть в пределах от 0 до 100. Текущий процент: {type.CashbackPercentage}");
+            if (type.Duration <= 0)
+                throw new ArgumentException($"Длительность в минутах должна быть положительной. Текущая длительность: {type.Duration}");
 
             if (dto.Image != null && dto.Image.Length > 0)
             {
@@ -67,6 +79,20 @@ namespace Application.Services
         {
             var existing = await _typeRep.GetTrainingTypeByIdAsync(dto.Id) ??
                 throw new KeyNotFoundException($"Тип тренировки с Id {dto.Id} не найден");
+
+            if (dto.MaxClients <= 0)
+                throw new ArgumentException($"Количество клиентов должно быть положительным. Текущее количество: {dto.MaxClients}");
+            if (dto.Price < 0)
+                throw new ArgumentException($"Цена должна быть неотрицательной. Текущая цена: {dto.Price}");
+            if (dto.Name.Length == 0)
+                throw new ArgumentException("Необходимо ввести название типа тренировки");
+            if (dto.Description.Length == 0)
+                throw new ArgumentException("Необходимо ввести описание типа тренировки");
+            if (dto.CashbackPercentage < 0 || dto.CashbackPercentage > 100)
+                throw new ArgumentException($"Процент кэшбека должен быть в пределах от 0 до 100. Текущий процент: {dto.CashbackPercentage}");
+            if (dto.Duration <= 0)
+                throw new ArgumentException($"Длительность в минутах должна быть положительной. Текущая длительность: {dto.Duration}");
+
 
             existing.MaxClients = dto.MaxClients;
             existing.Price = dto.Price;
