@@ -17,14 +17,24 @@ namespace Application.Services
             var clients = await _clientRep.GetClientsAsync();
             return clients.Select(c => new ClientDTO(c));
         }
-        public async Task<IEnumerable<ClientDTO>> GetSortedClientsByPhoneAsync(string phone)
+        public async Task<IEnumerable<ClientDTO>> GetFilteredClientsAsync(string filter)
         {
-            var clients = await _clientRep.GetSortedClientsByPhoneAsync(phone);
+            var clients = await _clientRep.GetFilteredClientsAsync(filter);
             return clients.Select(c => new ClientDTO(c));
         }
         public async Task<ClientDTO?> GetClientByPhoneAsync(string phone)
         {
             var client = await _clientRep.GetClientByPhoneAsync(phone);
+            return client == null ? null : new ClientDTO(client);
+        }
+        public async Task<ClientDTO?> GetClientByIdAsync(int id)
+        {
+            var client = await _clientRep.GetClientByIdAsync(id);
+            return client == null ? null : new ClientDTO(client);
+        }
+        public async Task<ClientDTO?> GetClientByUserIdAsync(string userId)
+        {
+            var client = await _clientRep.GetClientByUserIdAsync(userId);
             return client == null ? null : new ClientDTO(client);
         }
         public async Task<ClientDTO> AddClientAsync(CreateClientDTO client)

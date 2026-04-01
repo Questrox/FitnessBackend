@@ -18,10 +18,6 @@ namespace Application.Models.DTOs
             UserName = u.UserName;
             PhoneNumber = u.PhoneNumber;
             FullName = u.FullName;
-
-            Client = u.Client == null ? null : new ClientDTO(u.Client);
-
-            Coach = u.Coach == null ? null : new CoachDTO(u.Coach);
         }
 
         public UserDTO(UserDTO u)
@@ -31,8 +27,6 @@ namespace Application.Models.DTOs
             UserName = u.UserName;
             PhoneNumber = u.PhoneNumber;
             FullName = u.FullName;
-            Client = u.Client;
-            Coach = u.Coach;
         }
 
         public string Id { get; set; } = null!;
@@ -44,9 +38,5 @@ namespace Application.Models.DTOs
         public string? PhoneNumber { get; set; }
 
         public string FullName { get; set; } = null!;
-
-        public virtual ClientDTO? Client { get; set; }
-
-        public virtual CoachDTO? Coach { get; set; }
     }
 }

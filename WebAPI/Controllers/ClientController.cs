@@ -2,8 +2,10 @@
 using Application.Models.DTOs;
 using Application.Services;
 using Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Numerics;
+using System.Security.Claims;
 
 namespace WebAPI.Controllers
 {
@@ -21,21 +23,45 @@ namespace WebAPI.Controllers
             return Ok(clients);
         }
         [HttpGet("[action]")]
-        public async Task<ActionResult<IEnumerable<ClientDTO>>> GetSortedClientsByPhone(string phone)
+        public async Task<ActionResult<IEnumerable<ClientDTO>>> GetFilteredClients(string? filter)
         {
             var userName = User.Identity?.IsAuthenticated == true ? User.Identity.Name : "Гость";
-            _logger.LogInformation($"Пользователь {userName} получает список клиентов с номером {phone}");
+            if (string.IsNullOrEmpty(filter))
+                filter = "";
+            _logger.LogInformation($"Пользователь {userName} получает список клиентов с фильтром \"{filter}\"");
 
-            var clients = await _clientService.GetSortedClientsByPhoneAsync(phone);
+            var clients = await _clientService.GetFilteredClientsAsync(filter);
             return Ok(clients);
         }
         [HttpGet("[action]")]
-        public async Task<ActionResult<ClientDTO?>> GetClientByPhoneAsync(string phone)
+        public async Task<ActionResult<ClientDTO?>> GetClientByPhone(string phone)
         {
             var userName = User.Identity?.IsAuthenticated == true ? User.Identity.Name : "Гость";
             _logger.LogInformation($"Пользователь {userName} получает клиента с номером {phone}");
 
             var client = await _clientService.GetClientByPhoneAsync(phone);
+            if (client == null) return NotFound();
+            return Ok(client);
+        }
+        [HttpGet("[action]/{id}")]
+        public async Task<ActionResult<ClientDTO?>> GetClientById(int id)
+        {
+            var userName = User.Identity?.IsAuthenticated == true ? User.Identity.Name : "Гость";
+            _logger.LogInformation($"Пользователь {userName} получает клиента с id {id}");
+
+            var client = await _clientService.GetClientByIdAsync(id);
+            if (client == null) return NotFound();
+            return Ok(client);
+        }
+        [Authorize(Roles = "User")]
+        [HttpGet("[action]")]
+        public async Task<ActionResult<ClientDTO?>> GetCurrentClient()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userName = User.Identity?.IsAuthenticated == true ? User.Identity.Name : "Гость";
+            _logger.LogInformation($"Пользователь {userName} получает текущего клиента");
+
+            var client = await _clientService.GetClientByUserIdAsync(userId);
             if (client == null) return NotFound();
             return Ok(client);
         }

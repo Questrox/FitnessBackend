@@ -10,8 +10,9 @@ namespace Domain.Interfaces
     public interface IClientRepository : IRepository<Client>
     {
         Task<IEnumerable<Client>> GetClientsAsync();
-        Task<IEnumerable<Client>> GetSortedClientsByPhoneAsync(string phone);
+        Task<IEnumerable<Client>> GetFilteredClientsAsync(string phone);
         Task<Client?> GetClientByPhoneAsync(string phone);
         Task<Client?> GetClientByIdAsync(int id);
+        Task<Client?> GetClientByUserIdAsync(string userId);
     }
 }

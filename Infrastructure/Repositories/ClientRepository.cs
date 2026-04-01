@@ -17,25 +17,37 @@ namespace Infrastructure.Repositories
         {
             return await _dbSet.Include(c => c.Memberships).ThenInclude(m => m.MembershipType)
                 .Include(c => c.TrainingReservations).ThenInclude(c => c.Training)
+                .Include(c => c.User)
                 .ToListAsync();
         }
-        public async Task<IEnumerable<Client>> GetSortedClientsByPhoneAsync(string phone)
+        public async Task<IEnumerable<Client>> GetFilteredClientsAsync(string filter)
         {
             return await _dbSet.Include(c => c.Memberships).ThenInclude(m => m.MembershipType)
                 .Include(c => c.TrainingReservations).ThenInclude(c => c.Training)
-                .Where(c => c.User.PhoneNumber.Contains(phone)).ToListAsync();
+                .Include(c => c.User)
+                .Where(c => c.User.PhoneNumber.Contains(filter) || c.User.FullName.Contains(filter) || c.User.UserName.Contains(filter))
+                .ToListAsync();
         }
         public async Task<Client?> GetClientByPhoneAsync(string phone)
         {
             return await _dbSet.Include(c => c.Memberships).ThenInclude(m => m.MembershipType)
                 .Include(c => c.TrainingReservations).ThenInclude(c => c.Training)
+                .Include(c => c.User)
                 .FirstOrDefaultAsync(c => c.User.PhoneNumber == phone);
         }
         public async Task<Client?> GetClientByIdAsync(int id)
         {
             return await _dbSet.Include(c => c.Memberships).ThenInclude(m => m.MembershipType)
                 .Include(c => c.TrainingReservations).ThenInclude(c => c.Training)
+                .Include(c => c.User)
                 .FirstOrDefaultAsync(c => c.Id == id);
+        }
+        public async Task<Client?> GetClientByUserIdAsync(string userId)
+        {
+            return await _dbSet.Include(c => c.Memberships).ThenInclude(m => m.MembershipType)
+                .Include(c => c.TrainingReservations).ThenInclude(c => c.Training)
+                .Include(c => c.User)
+                .FirstOrDefaultAsync(c => c.UserId == userId);
         }
     }
 }
