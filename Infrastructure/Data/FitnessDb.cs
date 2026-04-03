@@ -160,6 +160,20 @@ namespace Infrastructure.Data
                 .HasForeignKey(cn => cn.TrainingId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            // CancellationNotification -> Admin
+            modelBuilder.Entity<CancellationNotification>()
+                .HasOne(cn => cn.Admin)
+                .WithMany(a => a.CancellationNotifications)
+                .HasForeignKey(cn => cn.AdminId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Payment -> Admin
+            modelBuilder.Entity<Payment>()
+                .HasOne(p => p.Admin)
+                .WithMany(a => a.Payments)
+                .HasForeignKey(p => p.AdminId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             // TimeSpan -> SQL time
             modelBuilder.Entity<CoachSchedule>()
                 .Property(cs => cs.StartTime)

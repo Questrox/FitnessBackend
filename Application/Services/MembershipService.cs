@@ -2,6 +2,7 @@
 using Application.Models.DTOs;
 using Domain.Entities;
 using Domain.Interfaces;
+using Infrastructure.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,8 @@ using System.Threading.Tasks;
 
 namespace Application.Services
 {
-    public class MembershipService(IMembershipRepository _membershipRep)
+    public class MembershipService(FitnessDb _db, PaymentService _paymentService, 
+        IMembershipRepository _membershipRep, IMembershipTypeRepository _membershipTypeRep)
     {
         public async Task<IEnumerable<MembershipDTO>> GetMembershipsAsync()
         {
@@ -32,19 +34,50 @@ namespace Application.Services
 
         public async Task<MembershipDTO> AddMembershipAsync(CreateMembershipDTO membership)
         {
-            var newMembership = new Membership
+            await using var transaction = await _db.Database.BeginTransactionAsync();
+
+            try
             {
-                StartDate = membership.StartDate,
-                EndDate = membership.EndDate,
-                ClientId = membership.ClientId,
-                MembershipTypeId = membership.MembershipTypeId,
-                PaymentId = membership.PaymentId
-            };
+                var mt = await _membershipTypeRep.GetMembershipTypeById(membership.MembershipTypeId);
+                if (mt == null)
+                    throw new ArgumentException($"Не найден тип абонемента с id {membership.MembershipTypeId}");
+                if (membership.StartDate.Date < DateTime.Now.Date)
+                    throw new ArgumentException($"Дата начала должна быть позже или равна текущей дате. " +
+                        $"Введенная дата начала: {membership.StartDate.Date}, текущая дата: {DateTime.Now.Date}");
 
-            await _membershipRep.AddAsync(newMembership);
-            newMembership = await _membershipRep.GetMembershipByIdAsync(newMembership.Id);
+                var paymentDto = new CreatePaymentDTO
+                {
+                    Date = DateTime.Now,
+                    Price = mt.Price,
+                    CashbackPercentage = mt.CashbackPercentage,
+                    PaidWithBonuses = membership.PaidWithBonuses,
+                    ClientId = membership.ClientId,
+                    AdminId = membership.AdminId
+                };
+                var createdPayment = await _paymentService.AddPaymentAsync(paymentDto);
 
-            return new MembershipDTO(newMembership);
+                var newMembership = new Membership
+                {
+                    StartDate = membership.StartDate.Date,
+                    EndDate = membership.StartDate.AddMonths(mt.Duration).Date,
+                    ClientId = membership.ClientId,
+                    MembershipTypeId = membership.MembershipTypeId,
+                    PaymentId = createdPayment.Id
+                };
+
+                await _membershipRep.AddAsync(newMembership);
+
+                await transaction.CommitAsync();
+
+                newMembership = await _membershipRep.GetMembershipByIdAsync(newMembership.Id);
+
+                return new MembershipDTO(newMembership);
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
 
         public async Task<MembershipDTO> UpdateMembershipAsync(MembershipDTO membership)

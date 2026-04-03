@@ -9,10 +9,7 @@ namespace Application.Models.DTOs
 {
     public class MembershipTypeDTO
     {
-        public MembershipTypeDTO()
-        {
-            Memberships = new HashSet<MembershipDTO>();
-        }
+        public MembershipTypeDTO() { }
 
         public MembershipTypeDTO(MembershipType m)
         {
@@ -22,10 +19,6 @@ namespace Application.Models.DTOs
             Price = m.Price;
             CashbackPercentage = m.CashbackPercentage;
             Duration = m.Duration;
-
-            Memberships = m.Memberships
-                .Select(x => new MembershipDTO(x))
-                .ToList();
         }
 
         public MembershipTypeDTO(MembershipTypeDTO m)
@@ -36,7 +29,6 @@ namespace Application.Models.DTOs
             Price = m.Price;
             CashbackPercentage = m.CashbackPercentage;
             Duration = m.Duration;
-            Memberships = m.Memberships;
         }
 
         public int Id { get; set; }
@@ -49,7 +41,5 @@ namespace Application.Models.DTOs
         public int CashbackPercentage { get; set; }
 
         public int Duration { get; set; }
-
-        public virtual ICollection<MembershipDTO> Memberships { get; set; }
     }
 }

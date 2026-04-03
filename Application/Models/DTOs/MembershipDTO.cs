@@ -17,7 +17,6 @@ namespace Application.Models.DTOs
             StartDate = m.StartDate;
             EndDate = m.EndDate;
             ClientId = m.ClientId;
-            Client = m.Client == null ? null : new ClientDTO(m.Client);
 
             MembershipTypeId = m.MembershipTypeId;
             MembershipType = m.MembershipType == null
@@ -36,7 +35,6 @@ namespace Application.Models.DTOs
             StartDate = m.StartDate;
             EndDate = m.EndDate;
             ClientId = m.ClientId;
-            Client = m.Client;
             MembershipTypeId = m.MembershipTypeId;
             MembershipType = m.MembershipType;
             PaymentId = m.PaymentId;
@@ -50,8 +48,6 @@ namespace Application.Models.DTOs
         public DateTime EndDate { get; set; }
 
         public int ClientId { get; set; }
-
-        public virtual ClientDTO? Client { get; set; }
 
         public int MembershipTypeId { get; set; }
 

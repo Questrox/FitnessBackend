@@ -15,5 +15,7 @@ namespace Application.Models.CreateDTOs
         public int CashbackPercentage { get; set; }
 
         public decimal PaidWithBonuses { get; set; }
+        public int ClientId { get; set; }
+        public string? AdminId { get; set; }
     }
 }

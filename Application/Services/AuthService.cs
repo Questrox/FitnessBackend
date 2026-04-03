@@ -62,7 +62,7 @@ namespace Application.Services
             var result = await _signInManager.PasswordSignInAsync(
                 model.UserName,
                 model.Password,
-                isPersistent: false,
+                isPersistent: true,
                 lockoutOnFailure: false);
 
             if (!result.Succeeded)

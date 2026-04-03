@@ -11,12 +11,12 @@ namespace Application.Models.CreateDTOs
     {
         public DateTime StartDate { get; set; }
 
-        public DateTime EndDate { get; set; }
+        public decimal PaidWithBonuses { get; set; }
 
         public int ClientId { get; set; }
 
         public int MembershipTypeId { get; set; }
 
-        public int PaymentId { get; set; }
+        public string? AdminId { get; set; }
     }
 }

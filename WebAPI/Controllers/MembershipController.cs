@@ -2,6 +2,7 @@
 using Application.Models.DTOs;
 using Application.Services;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -48,6 +49,7 @@ namespace WebAPI.Controllers
             var userName = User.Identity?.IsAuthenticated == true ? User.Identity.Name : "Гость";
             _logger.LogInformation($"Пользователь {userName} создаёт абонемент");
 
+            membership.AdminId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var newMembership = await _membershipService.AddMembershipAsync(membership);
             return Ok(newMembership);
         }

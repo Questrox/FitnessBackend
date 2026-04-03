@@ -14,5 +14,6 @@ namespace Application.Models.CreateDTOs
         public int TrainingId { get; set; }
 
         public int ClientId { get; set; }
+        public string? AdminId { get; set; }
     }
 }

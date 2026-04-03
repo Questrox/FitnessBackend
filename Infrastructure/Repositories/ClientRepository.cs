@@ -38,14 +38,22 @@ namespace Infrastructure.Repositories
         public async Task<Client?> GetClientByIdAsync(int id)
         {
             return await _dbSet.Include(c => c.Memberships).ThenInclude(m => m.MembershipType)
-                .Include(c => c.TrainingReservations).ThenInclude(c => c.Training)
+                .Include(c => c.Memberships).ThenInclude(c => c.Payment)
+                .Include(c => c.TrainingReservations).ThenInclude(tr => tr.Training).ThenInclude(t => t.TrainingType)
+                .Include(c => c.TrainingReservations).ThenInclude(tr => tr.ReservationStatus)
+                .Include(c => c.TrainingReservations).ThenInclude(tr => tr.Payment)
+                .Include(c => c.TrainingReservations).ThenInclude(tr => tr.Training).ThenInclude(t => t.Coach).ThenInclude(c => c.User)
                 .Include(c => c.User)
                 .FirstOrDefaultAsync(c => c.Id == id);
         }
         public async Task<Client?> GetClientByUserIdAsync(string userId)
         {
             return await _dbSet.Include(c => c.Memberships).ThenInclude(m => m.MembershipType)
-                .Include(c => c.TrainingReservations).ThenInclude(c => c.Training)
+                .Include(c => c.Memberships).ThenInclude(c => c.Payment)
+                .Include(c => c.TrainingReservations).ThenInclude(tr => tr.Training).ThenInclude(t => t.TrainingType)
+                .Include(c => c.TrainingReservations).ThenInclude(tr => tr.ReservationStatus)
+                .Include(c => c.TrainingReservations).ThenInclude(tr => tr.Payment)
+                .Include(c => c.TrainingReservations).ThenInclude(tr => tr.Training).ThenInclude(t => t.Coach).ThenInclude(c => c.User)
                 .Include(c => c.User)
                 .FirstOrDefaultAsync(c => c.UserId == userId);
         }

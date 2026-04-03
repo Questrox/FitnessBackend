@@ -19,7 +19,6 @@ namespace Application.Models.DTOs
             CashbackPercentage = p.CashbackPercentage;
             PaidWithBonuses = p.PaidWithBonuses;
 
-            Membership = p.Membership == null ? null : new MembershipDTO(p.Membership);
 
             TrainingReservation = p.TrainingReservation == null ? null : new TrainingReservationDTO(p.TrainingReservation);
         }
@@ -31,7 +30,6 @@ namespace Application.Models.DTOs
             Price = p.Price;
             CashbackPercentage = p.CashbackPercentage;
             PaidWithBonuses = p.PaidWithBonuses;
-            Membership = p.Membership;
             TrainingReservation = p.TrainingReservation;
         }
 
@@ -44,8 +42,6 @@ namespace Application.Models.DTOs
         public int CashbackPercentage { get; set; }
 
         public decimal PaidWithBonuses { get; set; }
-
-        public virtual MembershipDTO? Membership { get; set; }
 
         public virtual TrainingReservationDTO? TrainingReservation { get; set; }
     }

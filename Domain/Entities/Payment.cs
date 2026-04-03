@@ -17,6 +17,8 @@ namespace Domain.Entities
         public decimal Price { get; set; }
         public int CashbackPercentage { get; set; }
         public decimal PaidWithBonuses { get; set; }
+        public string AdminId { get; set; }
+        public virtual User? Admin { get; set; }
         public virtual Membership? Membership { get; set; }
         public virtual TrainingReservation? TrainingReservation { get; set; }
         public bool IsDeleted { get; set; } = false;

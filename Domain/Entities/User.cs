@@ -19,6 +19,10 @@ namespace Domain.Entities
         public virtual Client? Client { get; set; }
         [JsonIgnore]
         public virtual Coach? Coach { get; set; }
+        [JsonIgnore]
+        public virtual ICollection<Payment> Payments { get; set; }
+        [JsonIgnore]
+        public virtual ICollection<CancellationNotification> CancellationNotifications { get; set; }
         public bool IsDeleted { get; set; } = false;
     }
 }
