@@ -1,7 +1,9 @@
-﻿using Application.Models.CreateDTOs;
+﻿using Application.Models;
+using Application.Models.CreateDTOs;
 using Application.Models.DTOs;
 using Domain.Entities;
 using Domain.Interfaces;
+using Infrastructure.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Application.Services
 {
-    public class ClientService(IClientRepository _clientRep)
+    public class ClientService(FitnessDb _db, AuthService _authService, IClientRepository _clientRep)
     {
         public async Task<IEnumerable<ClientDTO>> GetClientsAsync()
         {
@@ -37,16 +39,48 @@ namespace Application.Services
             var client = await _clientRep.GetClientByUserIdAsync(userId);
             return client == null ? null : new ClientDTO(client);
         }
-        public async Task<ClientDTO> AddClientAsync(CreateClientDTO client)
+        public async Task<AddClientResult> AddClientAsync(CreateClientDTO client)
         {
-            var newClient = new Client
+            await using var transaction = await _db.Database.BeginTransactionAsync();
+
+            try
             {
-                Bonuses = client.Bonuses,
-                UserId = client.UserId
-            };
-            await _clientRep.AddAsync(newClient);
-            newClient = await _clientRep.GetClientByIdAsync(newClient.Id);
-            return new ClientDTO(newClient);
+                var userName = await _authService.GenerateUsernameAsync();
+                var password = _authService.GeneratePassword();
+                RegisterModel model = new RegisterModel
+                {
+                    FullName = client.FullName,
+                    PhoneNumber = client.PhoneNumber,
+                    UserName = userName,
+                    Password = password
+                };
+                var result = await _authService.RegisterAsync(model);
+                if (result == null)
+                    throw new ArgumentException("Не удалось создать пользователя");
+                var newClient = new Client
+                {
+                    Bonuses = 0,
+                    UserId = result
+                };
+                await _clientRep.AddAsync(newClient);
+
+                await transaction.CommitAsync();
+
+                //newClient = await _clientRep.GetClientByIdAsync(newClient.Id);
+
+                var addResult = new AddClientResult
+                {
+                    ClientId = newClient.Id,
+                    UserName = userName,
+                    Password = password
+                };
+                return addResult;
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
         public async Task<ClientDTO> UpdateClientAsync(ClientDTO client)
         {

@@ -7,6 +7,7 @@ using System.Text;
 using Application.Models;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Cryptography;
 
 namespace Application.Services
 {
@@ -29,7 +30,7 @@ namespace Application.Services
             _logger = logger;
         }
 
-        public async Task<bool> RegisterAsync(RegisterModel model)
+        public async Task<string?> RegisterAsync(RegisterModel model)
         {
             var user = new User
             {
@@ -46,13 +47,13 @@ namespace Application.Services
             {
                 foreach (var error in result.Errors)
                     _logger.LogError($"Ошибка регистрации: {error.Code} {error.Description}");
-                return false;
+                return null;
             }
 
             await _userManager.AddToRoleAsync(user, "User");
 
             _logger.LogInformation($"Пользователь {model.UserName} успешно зарегистрирован");
-            return true;
+            return user.Id;
         }
 
         public async Task<LoginResult?> LoginAsync(LoginModel model)
@@ -116,11 +117,11 @@ namespace Application.Services
             _logger.LogInformation($"Генерируется токен для пользователя {user.UserName}");
 
             var claims = new List<Claim>
-        {
-            new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new Claim(ClaimTypes.NameIdentifier, user.Id)
-        };
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(ClaimTypes.NameIdentifier, user.Id)
+            };
 
             claims.AddRange(roles.Select(role =>
                 new Claim(ClaimsIdentity.DefaultRoleClaimType, role)));
@@ -142,6 +143,55 @@ namespace Application.Services
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        public async Task<string> GenerateUsernameAsync(int length = 6)
+        {
+            while (true)
+            {
+                const string chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+
+                var result = new StringBuilder();
+
+                for (int i = 0; i < length; i++)
+                {
+                    result.Append(chars[RandomNumberGenerator.GetInt32(chars.Length)]);
+                }
+                if (await _userManager.FindByNameAsync(result.ToString()) == null)
+                    return result.ToString();
+            }
+        }
+
+        public string GeneratePassword(int length = 8)
+        {
+            const string lower = "abcdefghijklmnopqrstuvwxyz";
+            const string upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            const string digits = "0123456789";
+            const string special = "!@$?_-";
+
+            var all = lower + upper + digits + special;
+
+            var chars = new List<char>();
+
+            // гарантируем наличие каждого типа
+            chars.Add(upper[RandomNumberGenerator.GetInt32(upper.Length)]);
+            chars.Add(lower[RandomNumberGenerator.GetInt32(lower.Length)]);
+            chars.Add(digits[RandomNumberGenerator.GetInt32(digits.Length)]);
+            chars.Add(special[RandomNumberGenerator.GetInt32(special.Length)]);
+
+            for (int i = 4; i < length; i++)
+            {
+                chars.Add(all[RandomNumberGenerator.GetInt32(all.Length)]);
+            }
+
+            // перемешивание
+            for (int i = chars.Count - 1; i > 0; i--)
+            {
+                int j = RandomNumberGenerator.GetInt32(i + 1);
+                (chars[i], chars[j]) = (chars[j], chars[i]);
+            }
+
+            return new string(chars.ToArray());
         }
     }
 }

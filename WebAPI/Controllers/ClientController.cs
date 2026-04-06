@@ -1,4 +1,5 @@
-﻿using Application.Models.CreateDTOs;
+﻿using Application.Models;
+using Application.Models.CreateDTOs;
 using Application.Models.DTOs;
 using Application.Services;
 using Domain.Entities;
@@ -66,7 +67,7 @@ namespace WebAPI.Controllers
             return Ok(client);
         }
         [HttpPost("[action]")]
-        public async Task<ActionResult<ClientDTO>> AddClient(CreateClientDTO client)
+        public async Task<ActionResult<AddClientResult>> AddClient(CreateClientDTO client)
         {
             var userName = User.Identity?.IsAuthenticated == true ? User.Identity.Name : "Гость";
             _logger.LogInformation($"Пользователь {userName} создает клиента");
