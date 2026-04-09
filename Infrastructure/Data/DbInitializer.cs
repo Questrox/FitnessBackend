@@ -63,7 +63,7 @@ namespace Infrastructure.Data
                     FullName = "Афонин Михаил Михайлович",
                     PhoneNumber = "+79082876591"
                 };
-                await userManager.CreateAsync(clientUser1, "User@123");
+                await userManager.CreateAsync(clientUser1, "Client@123");
                 await userManager.AddToRoleAsync(clientUser1, "User");
             }
             else clientUser1 = await userManager.FindByNameAsync("client1");
@@ -77,7 +77,7 @@ namespace Infrastructure.Data
                     FullName = "Егоров Алексей Юрьевич",
                     PhoneNumber = "+79658126366"
                 };
-                await userManager.CreateAsync(clientUser2, "User@123");
+                await userManager.CreateAsync(clientUser2, "Client@123");
                 await userManager.AddToRoleAsync(clientUser2, "User");
             }
             else clientUser2 = await userManager.FindByNameAsync("client2");

@@ -54,7 +54,7 @@ namespace WebAPI.Middleware
             {
                 context.Response.StatusCode = 401;
             }
-            else if (ex is ArgumentException)
+            else if (ex is ArgumentException || ex is InvalidOperationException || ex is Exception)
             {
                 context.Response.StatusCode = 400;
             }

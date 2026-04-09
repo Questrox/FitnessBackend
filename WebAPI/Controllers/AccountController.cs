@@ -10,6 +10,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Application.Models;
+using Application.Models.DTOs;
 
 namespace WebAPI.Controllers
 {
@@ -74,6 +75,36 @@ namespace WebAPI.Controllers
             if (result == null)
                 return Unauthorized(new { message = "Вы Гость. Пожалуйста, выполните вход" });
 
+            return Ok(result);
+        }
+
+        [HttpPut("[action]/{id}")]
+        [Authorize]
+        public async Task<ActionResult<UserDTO>> UpdateUser(string id, UserDTO user)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+            if (id != user.Id) return BadRequest();
+
+            var userName = User.Identity?.IsAuthenticated == true ? User.Identity.Name : "Гость";
+            _logger.LogInformation($"Пользователь {userName} обновляет пользователя {user.UserName}");
+
+            var result = await _authService.UpdateUserAsync(user);
+            return Ok(result);
+        }
+
+        [HttpPut("resetPassword")]
+        [Authorize]
+        public async Task<IActionResult> ResetPassword(ChangePasswordModel model)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            await _authService.ResetPassword(userId, model.OldPassword, model.NewPassword);
+            return Ok();
+        }
+        [HttpPut("generateNewCredentials")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<LoginCredentials>> GenerateNewCredentials(string userId)
+        {
+            LoginCredentials result = await _authService.GenerateNewCredentials(userId);
             return Ok(result);
         }
     }

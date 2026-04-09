@@ -8,6 +8,7 @@ using Application.Models;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
+using Application.Models.DTOs;
 
 namespace Application.Services
 {
@@ -192,6 +193,78 @@ namespace Application.Services
             }
 
             return new string(chars.ToArray());
+        }
+
+        public async Task<UserDTO> UpdateUserAsync(UserDTO updated)
+        {
+            var user = await _userManager.FindByIdAsync(updated.Id);
+            if (user == null)
+                throw new ArgumentException("Не удалось найти пользователя с данным Id");
+
+            if (string.IsNullOrWhiteSpace(updated.UserName))
+                throw new ArgumentException("Логин не может быть пустым");
+            if (string.IsNullOrWhiteSpace(updated.FullName))
+                throw new ArgumentException("ФИО не может быть пустым");
+            if (string.IsNullOrWhiteSpace(updated.PhoneNumber))
+                throw new ArgumentException("Номер телефона не может быть пустым");
+
+            var existingUser = await _userManager.FindByNameAsync(updated.UserName);
+            if (existingUser != null && existingUser.Id != user.Id)
+                throw new ArgumentException($"Логин {updated.UserName} уже используется");
+
+            user.FullName = updated.FullName;
+            user.UserName = updated.UserName;
+            user.PhoneNumber = updated.PhoneNumber;
+
+            var result = await _userManager.UpdateAsync(user);
+            if (!result.Succeeded)
+                throw new ArgumentException(string.Join("\n", result.Errors.Select(e => e.Description)));
+
+            return new UserDTO(user);
+        }
+
+        public async Task ResetPassword(string userId, string oldPassword, string newPassword)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                throw new ArgumentException($"Не удалось найти пользователя с данным Id");
+
+            _logger.LogInformation($"Пользователь {user.UserName} меняет пароль");
+            var result = await _userManager.ChangePasswordAsync(user, oldPassword, newPassword);
+            if (!result.Succeeded)
+            {
+                string message = "";
+                foreach (var error in result.Errors)
+                    message += error.Description + "\n";
+
+                _logger.LogWarning($"Ошибка смены пароля для пользователя {user.UserName}: {message}");
+                throw new InvalidOperationException(message);
+            }
+        }
+
+        public async Task<LoginCredentials> GenerateNewCredentials(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (user == null)
+                throw new ArgumentException($"Не удалось найти пользователя с данным Id");
+
+            string userName = await GenerateUsernameAsync();
+            string password = GeneratePassword();
+            user.UserName = userName;
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var result = await _userManager.ResetPasswordAsync(user, token, password);
+            if (!result.Succeeded)
+            {
+                string message = "";
+                foreach (var error in result.Errors)
+                    message += error.Description + "\n";
+
+                _logger.LogWarning($"Ошибка генерации данных для входа для пользователя {user.UserName}: {message}");
+                throw new InvalidOperationException(message);
+            }
+            LoginCredentials credentials = new LoginCredentials { UserName = userName, Password = password };
+            return credentials;
         }
     }
 }
