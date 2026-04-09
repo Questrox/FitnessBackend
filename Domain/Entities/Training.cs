@@ -17,7 +17,10 @@ namespace Domain.Entities
         }
         [Key]
         public int Id { get; set; }
-        public DateTime Date {  get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
+        public decimal Price { get; set; }
+        public int CashbackPercentage { get; set; }
         public int CoachId { get; set; }
         public int TrainingTypeId { get; set; }
         public int TrainingStatusId { get; set; }

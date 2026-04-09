@@ -10,10 +10,7 @@ namespace Application.Models.DTOs
 {
     public class TrainingTypeDTO
     {
-        public TrainingTypeDTO()
-        {
-            Trainings = new HashSet<TrainingDTO>();
-        }
+        public TrainingTypeDTO() { }
 
         public TrainingTypeDTO(TrainingType t)
         {
@@ -23,10 +20,6 @@ namespace Application.Models.DTOs
             Name = t.Name;
             Description = t.Description;
             CashbackPercentage = t.CashbackPercentage;
-
-            Trainings = t.Trainings
-                .Select(x => new TrainingDTO(x))
-                .ToList();
             PhotoPath = t.PhotoPath;
             Duration = t.Duration;
         }
@@ -39,7 +32,6 @@ namespace Application.Models.DTOs
             Name = t.Name;
             Description = t.Description;
             CashbackPercentage = t.CashbackPercentage;
-            Trainings = t.Trainings;
             PhotoPath = t.PhotoPath;
             Duration = t.Duration;
             Image = t.Image;
@@ -56,11 +48,11 @@ namespace Application.Models.DTOs
         public string Description { get; set; } = null!;
 
         public string PhotoPath { get; set; } = null!;
+
         public IFormFile? Image { get; set; }
+
         public int Duration { get; set; }
 
         public int CashbackPercentage { get; set; }
-
-        public virtual ICollection<TrainingDTO> Trainings { get; set; }
     }
 }

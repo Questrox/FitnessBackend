@@ -129,6 +129,7 @@ namespace Infrastructure.Data
                         Price = 600,
                         CashbackPercentage = 3,
                         MaxClients = 15,
+                        Duration = 60,
                         PhotoPath = "images/TrainingTypes/Yoga.jpg"
                     },
                     new TrainingType
@@ -140,6 +141,7 @@ namespace Infrastructure.Data
                         Price = 1000,
                         CashbackPercentage = 7,
                         MaxClients = 5,
+                        Duration = 90,
                         PhotoPath = "images/TrainingTypes/Pilates.jpg"
                     },
                     new TrainingType
@@ -151,6 +153,7 @@ namespace Infrastructure.Data
                         Price = 700,
                         CashbackPercentage = 5,
                         MaxClients = 10,
+                        Duration = 75,
                         PhotoPath = "images/TrainingTypes/Cycle.jpg"
                     },
                     new TrainingType
@@ -161,6 +164,7 @@ namespace Infrastructure.Data
                         Price = 700,
                         CashbackPercentage = 3,
                         MaxClients = 10,
+                        Duration = 60,
                         PhotoPath = "images/TrainingTypes/Crossfit.jpeg"
                     },
                     new TrainingType
@@ -170,6 +174,7 @@ namespace Infrastructure.Data
                         Price = 1500,
                         CashbackPercentage = 7,
                         MaxClients = 1,
+                        Duration = 60,
                         PhotoPath = "images/TrainingTypes/Тренажерный зал.jpg"
                     },
                     new TrainingType
@@ -179,6 +184,7 @@ namespace Infrastructure.Data
                         Price = 1500,
                         CashbackPercentage = 7,
                         MaxClients = 1,
+                        Duration = 60,
                         PhotoPath = "images/TrainingTypes/Бассейн.jpg"
                     }
                 );

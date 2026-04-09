@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Application.Services
 {
-    public class TrainingService(ITrainingRepository _trainingRep)
+    public class TrainingService(ITrainingRepository _trainingRep, ITrainingTypeRepository _typeRepository)
     {
         public async Task<IEnumerable<TrainingDTO>> GetTrainingsForPeriodAsync(DateTime start, DateTime end)
         {
@@ -26,11 +26,18 @@ namespace Application.Services
 
         public async Task<TrainingDTO> AddTrainingAsync(CreateTrainingDTO dto)
         {
+            var type = await _typeRepository.GetTrainingTypeByIdAsync(dto.TrainingTypeId);
+            if (type == null)
+                throw new ArgumentException($"Не найден тип тренировки с Id {dto.TrainingTypeId}");
             var training = new Training
             {
-                Date = dto.Date,
+                StartDate = dto.StartDate,
+                EndDate = dto.StartDate.AddMinutes(type.Duration),
+                Price = type.Price,
+                CashbackPercentage = type.CashbackPercentage,
                 CoachId = dto.CoachId,
-                TrainingTypeId = dto.TrainingTypeId
+                TrainingTypeId = dto.TrainingTypeId,
+                TrainingStatusId = (int)TrainingStatusEnum.Pending,
             };
 
             await _trainingRep.AddAsync(training);
@@ -44,7 +51,8 @@ namespace Application.Services
             var existing = await _trainingRep.GetTrainingByIdAsync(dto.Id) ??
                 throw new KeyNotFoundException($"Тренировка с Id {dto.Id} не найдена");
 
-            existing.Date = dto.Date;
+            existing.StartDate = dto.StartDate;
+            existing.EndDate = dto.EndDate;
             existing.CoachId = dto.CoachId;
             existing.TrainingTypeId = dto.TrainingTypeId;
 

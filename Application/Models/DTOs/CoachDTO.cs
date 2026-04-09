@@ -12,7 +12,6 @@ namespace Application.Models.DTOs
         public CoachDTO()
         {
             CoachSchedules = new HashSet<CoachScheduleDTO>();
-            Trainings = new HashSet<TrainingDTO>();
         }
 
         public CoachDTO(Coach c)
@@ -27,10 +26,6 @@ namespace Application.Models.DTOs
             CoachSchedules = c.CoachSchedules
                 .Select(s => new CoachScheduleDTO(s))
                 .ToList();
-
-            Trainings = c.Trainings
-                .Select(t => new TrainingDTO(t))
-                .ToList();
         }
 
         public CoachDTO(CoachDTO c)
@@ -41,7 +36,6 @@ namespace Application.Models.DTOs
             UserId = c.UserId;
             User = c.User;
             CoachSchedules = c.CoachSchedules;
-            Trainings = c.Trainings;
         }
 
         public int Id { get; set; }
@@ -55,7 +49,5 @@ namespace Application.Models.DTOs
         public virtual UserDTO? User { get; set; }
 
         public virtual ICollection<CoachScheduleDTO> CoachSchedules { get; set; }
-
-        public virtual ICollection<TrainingDTO> Trainings { get; set; }
     }
 }

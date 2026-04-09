@@ -15,9 +15,9 @@ namespace WebAPI.Controllers
         public async Task<ActionResult<IEnumerable<TrainingDTO>>> GetTrainingsForPeriod(DateTime start, DateTime end)
         {
             var userName = User.Identity?.IsAuthenticated == true ? User.Identity.Name : "Гость";
-            _logger.LogInformation($"Пользователь {userName} получает тренировки за период {start} - {end}");
+            _logger.LogInformation($"Пользователь {userName} получает тренировки за период {start.Date} - {end.Date}");
 
-            var trainings = await _trainingService.GetTrainingsForPeriodAsync(start, end);
+            var trainings = await _trainingService.GetTrainingsForPeriodAsync(start.Date, end.Date);
             return Ok(trainings);
         }
 

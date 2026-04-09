@@ -15,11 +15,11 @@ namespace Infrastructure.Repositories
         public CoachRepository(FitnessDb db) : base(db) { }
         public async Task<IEnumerable<Coach>> GetCoachesAsync()
         {
-            return await _dbSet.Include(c => c.CoachSchedules).ToListAsync();
+            return await _dbSet.Include(c => c.CoachSchedules).Include(c => c.User).ToListAsync();
         }
         public async Task<Coach?> GetCoachByIdAsync(int id)
         {
-            return await _dbSet.Include(c => c.CoachSchedules).FirstOrDefaultAsync(c => c.Id == id);
+            return await _dbSet.Include(c => c.CoachSchedules).Include(c => c.User).FirstOrDefaultAsync(c => c.Id == id);
         }
     }
 }

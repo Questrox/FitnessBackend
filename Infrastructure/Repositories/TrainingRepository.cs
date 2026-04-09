@@ -14,9 +14,12 @@ namespace Infrastructure.Repositories
     {
         public TrainingRepository(FitnessDb db) : base(db) { }
         public async Task<IEnumerable<Training>> GetTrainingsForPeriodAsync(DateTime start, DateTime end)
-            => await _dbSet.Include(t => t.TrainingType).Include(t => t.Coach)
-            .Where(t => t.Date >= start && t.Date <= end && t.TrainingStatusId != (int)TrainingStatusEnum.Cancelled).ToListAsync();
+            => await _dbSet.Include(t => t.TrainingType).Include(t => t.Coach).Include(t => t.TrainingStatus)
+            .Include(t => t.TrainingReservations).ThenInclude(tr => tr.Client).ThenInclude(c => c.User)
+            .Where(t => t.StartDate >= start && t.EndDate <= end && t.TrainingStatusId != (int)TrainingStatusEnum.Cancelled).ToListAsync();
         public async Task<Training?> GetTrainingByIdAsync(int id)
-            => await _dbSet.Include(t => t.TrainingType).Include(t => t.Coach).FirstOrDefaultAsync(t => t.Id == id);
+            => await _dbSet.Include(t => t.TrainingType).Include(t => t.Coach).Include(t => t.TrainingStatus)
+            .Include(t => t.TrainingReservations).ThenInclude(tr => tr.Client).ThenInclude(c => c.User)
+            .FirstOrDefaultAsync(t => t.Id == id);
     }
 }

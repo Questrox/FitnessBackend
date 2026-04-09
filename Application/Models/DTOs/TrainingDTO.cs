@@ -12,13 +12,15 @@ namespace Application.Models.DTOs
         public TrainingDTO()
         {
             TrainingReservations = new HashSet<TrainingReservationDTO>();
-            CancellationNotifications = new HashSet<CancellationNotificationDTO>();
         }
 
         public TrainingDTO(Training t)
         {
             Id = t.Id;
-            Date = t.Date;
+            StartDate = t.StartDate;
+            EndDate = t.EndDate;
+            Price = t.Price;
+            CashbackPercentage = t.CashbackPercentage;
             CoachId = t.CoachId;
             TrainingTypeId = t.TrainingTypeId;
             TrainingStatusId = t.TrainingStatusId;
@@ -30,16 +32,15 @@ namespace Application.Models.DTOs
             TrainingReservations = t.TrainingReservations
                 .Select(x => new TrainingReservationDTO(x))
                 .ToList();
-
-            CancellationNotifications = t.CancellationNotifications
-                .Select(x => new CancellationNotificationDTO(x))
-                .ToList();
         }
 
         public TrainingDTO(TrainingDTO t)
         {
             Id = t.Id;
-            Date = t.Date;
+            StartDate = t.StartDate;
+            EndDate = t.EndDate;
+            Price = t.Price;
+            CashbackPercentage = t.CashbackPercentage;
             CoachId = t.CoachId;
             TrainingTypeId = t.TrainingTypeId;
             TrainingStatusId = t.TrainingStatusId;
@@ -47,12 +48,17 @@ namespace Application.Models.DTOs
             TrainingType = t.TrainingType;
             TrainingStatus = t.TrainingStatus;
             TrainingReservations = t.TrainingReservations;
-            CancellationNotifications = t.CancellationNotifications;
         }
 
         public int Id { get; set; }
 
-        public DateTime Date { get; set; }
+        public DateTime StartDate { get; set; }
+
+        public DateTime EndDate { get; set; }
+
+        public decimal Price { get; set; }
+
+        public int CashbackPercentage { get; set; }
 
         public int CoachId { get; set; }
 
@@ -67,7 +73,5 @@ namespace Application.Models.DTOs
         public virtual TrainingStatusDTO? TrainingStatus { get; set; }
 
         public virtual ICollection<TrainingReservationDTO> TrainingReservations { get; set; }
-
-        public virtual ICollection<CancellationNotificationDTO> CancellationNotifications { get; set; }
     }
 }

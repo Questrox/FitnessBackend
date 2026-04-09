@@ -8,7 +8,7 @@ namespace Application.Models.CreateDTOs
 {
     public class CreateTrainingDTO
     {
-        public DateTime Date { get; set; }
+        public DateTime StartDate { get; set; }
 
         public int CoachId { get; set; }
 
