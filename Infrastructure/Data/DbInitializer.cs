@@ -274,6 +274,52 @@ namespace Infrastructure.Data
                 await context.SaveChangesAsync();
             }
 
+            if (!context.CoachSchedules.Any())
+            {
+                var coaches = await context.Coaches.ToListAsync();
+
+                if (coaches.Count < 2)
+                    throw new Exception("Недостаточно тренеров для инициализации расписания");
+
+                var coach1 = coaches[0];
+                var coach2 = coaches[1];
+
+                var schedules = new List<CoachSchedule>();
+
+                // Тренер 1: выходные - суббота, воскресенье
+                foreach (DayOfWeek day in Enum.GetValues(typeof(DayOfWeek)))
+                {
+                    if (day == DayOfWeek.Saturday || day == DayOfWeek.Sunday)
+                        continue;
+
+                    schedules.Add(new CoachSchedule
+                    {
+                        CoachId = coach1.Id,
+                        WeekDay = day,
+                        StartTime = new TimeSpan(9, 0, 0),
+                        EndTime = new TimeSpan(17, 0, 0)
+                    });
+                }
+
+                // Тренер 2: выходные - среда, четверг
+                foreach (DayOfWeek day in Enum.GetValues(typeof(DayOfWeek)))
+                {
+                    if (day == DayOfWeek.Wednesday || day == DayOfWeek.Thursday)
+                        continue;
+
+                    schedules.Add(new CoachSchedule
+                    {
+                        CoachId = coach2.Id,
+                        WeekDay = day,
+                        StartTime = new TimeSpan(12, 0, 0),
+                        EndTime = new TimeSpan(20, 0, 0)
+                    });
+                }
+
+                context.CoachSchedules.AddRange(schedules);
+                await context.SaveChangesAsync();
+            }
+
             #endregion
         }
     }

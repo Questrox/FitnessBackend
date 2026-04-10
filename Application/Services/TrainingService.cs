@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Application.Services
 {
-    public class TrainingService(ITrainingRepository _trainingRep, ITrainingTypeRepository _typeRepository)
+    public class TrainingService(ITrainingRepository _trainingRep, ITrainingTypeRepository _typeRep, ICoachRepository _coachRep)
     {
         public async Task<IEnumerable<TrainingDTO>> GetTrainingsForPeriodAsync(DateTime start, DateTime end)
         {
@@ -26,13 +26,23 @@ namespace Application.Services
 
         public async Task<TrainingDTO> AddTrainingAsync(CreateTrainingDTO dto)
         {
-            var type = await _typeRepository.GetTrainingTypeByIdAsync(dto.TrainingTypeId);
+            if (dto.StartDate.ToLocalTime() < DateTime.Now)
+                throw new ArgumentException($"Нельзя добавить тренировку раньше текущей даты и времени");
+            var type = await _typeRep.GetTrainingTypeByIdAsync(dto.TrainingTypeId);
             if (type == null)
                 throw new ArgumentException($"Не найден тип тренировки с Id {dto.TrainingTypeId}");
+            var coach = await _coachRep.GetCoachByIdAsync(dto.CoachId);
+            if (coach == null)
+                throw new ArgumentException($"Не найден тренер с Id {dto.CoachId}");
+            var availableCoaches = await _coachRep.GetAvailableCoachesAsync(dto.StartDate.ToLocalTime(),
+                dto.StartDate.ToLocalTime().AddMinutes(type.Duration));
+            if (!availableCoaches.Contains(coach))
+                throw new ArgumentException($"Тренер с Id {dto.CoachId} занят в данный временной промежуток");
+
             var training = new Training
             {
-                StartDate = dto.StartDate,
-                EndDate = dto.StartDate.AddMinutes(type.Duration),
+                StartDate = dto.StartDate.ToLocalTime(),
+                EndDate = dto.StartDate.ToLocalTime().AddMinutes(type.Duration),
                 Price = type.Price,
                 CashbackPercentage = type.CashbackPercentage,
                 CoachId = dto.CoachId,

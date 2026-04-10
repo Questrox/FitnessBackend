@@ -21,6 +21,16 @@ namespace WebAPI.Controllers
             return Ok(coaches);
         }
 
+        [HttpGet("[action]")]
+        public async Task<ActionResult<IEnumerable<CoachDTO>>> GetAvailableCoaches(DateTime start, DateTime end)
+        {
+            var userName = User.Identity?.IsAuthenticated == true ? User.Identity.Name : "Гость";
+            _logger.LogInformation($"Пользователь {userName} получает свободных тренеров в период {start.ToLocalTime()} - {end.ToLocalTime()}");
+
+            var coaches = await _coachService.GetAvailableCoachesAsync(start.ToLocalTime(), end.ToLocalTime());
+            return Ok(coaches);
+        }
+
         [HttpGet("[action]/{id}")]
         public async Task<ActionResult<CoachDTO?>> GetCoachById(int id)
         {

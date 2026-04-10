@@ -17,9 +17,28 @@ namespace Infrastructure.Repositories
         {
             return await _dbSet.Include(c => c.CoachSchedules).Include(c => c.User).ToListAsync();
         }
+        public async Task<IEnumerable<Coach>> GetAvailableCoachesAsync(DateTime start, DateTime end)
+        {
+            return await _dbSet
+                .Include(c => c.User)
+                .Where(c =>
+                    c.CoachSchedules.Any(cs =>
+                        cs.WeekDay == start.DayOfWeek &&
+                        cs.StartTime <= start.TimeOfDay &&
+                        cs.EndTime >= end.TimeOfDay
+                    )
+                    &&
+                    !c.Trainings.Any(t =>
+                        t.TrainingStatusId != (int)TrainingStatusEnum.Cancelled &&
+                        t.StartDate < end &&
+                        t.EndDate > start
+                    )
+                )
+                .ToListAsync();
+        }
         public async Task<Coach?> GetCoachByIdAsync(int id)
         {
-            return await _dbSet.Include(c => c.CoachSchedules).Include(c => c.User).FirstOrDefaultAsync(c => c.Id == id);
+            return await _dbSet.Include(c => c.User).FirstOrDefaultAsync(c => c.Id == id);
         }
     }
 }

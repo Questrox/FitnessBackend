@@ -18,6 +18,12 @@ namespace Application.Services
             return coaches.Select(c => new CoachDTO(c));
         }
 
+        public async Task<IEnumerable<CoachDTO>> GetAvailableCoachesAsync(DateTime start, DateTime end)
+        {
+            var coaches = await _coachRep.GetAvailableCoachesAsync(start, end);
+            return coaches.Select(c => new CoachDTO(c));
+        }
+
         public async Task<CoachDTO?> GetCoachByIdAsync(int id)
         {
             var coach = await _coachRep.GetCoachByIdAsync(id);

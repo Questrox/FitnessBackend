@@ -18,7 +18,6 @@ namespace Application.Models.DTOs
             StartTime = c.StartTime;
             EndTime = c.EndTime;
             CoachId = c.CoachId;
-            Coach = c.Coach == null ? null : new CoachDTO(c.Coach);
         }
 
         public CoachScheduleDTO(CoachScheduleDTO c)
@@ -28,7 +27,6 @@ namespace Application.Models.DTOs
             StartTime = c.StartTime;
             EndTime = c.EndTime;
             CoachId = c.CoachId;
-            Coach = c.Coach;
         }
 
         public int Id { get; set; }
@@ -40,7 +38,5 @@ namespace Application.Models.DTOs
         public TimeSpan EndTime { get; set; }
 
         public int CoachId { get; set; }
-
-        public virtual CoachDTO? Coach { get; set; }
     }
 }
