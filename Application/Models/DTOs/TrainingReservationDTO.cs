@@ -19,7 +19,6 @@ namespace Application.Models.DTOs
             PaymentId = r.PaymentId;
             ReservationStatusId = r.ReservationStatusId;
 
-            Client = r.Client == null ? null : new ClientDTO(r.Client);
             Training = r.Training == null ? null : new TrainingDTO(r.Training);
             Payment = r.Payment == null ? null : new PaymentDTO(r.Payment);
             ReservationStatus = r.ReservationStatus == null
@@ -34,7 +33,6 @@ namespace Application.Models.DTOs
             TrainingId = r.TrainingId;
             PaymentId = r.PaymentId;
             ReservationStatusId = r.ReservationStatusId;
-            Client = r.Client;
             Training = r.Training;
             Payment = r.Payment;
             ReservationStatus = r.ReservationStatus;
@@ -46,11 +44,9 @@ namespace Application.Models.DTOs
 
         public int TrainingId { get; set; }
 
-        public int PaymentId { get; set; }
+        public int? PaymentId { get; set; }
 
         public int ReservationStatusId { get; set; }
-
-        public virtual ClientDTO? Client { get; set; }
 
         public virtual TrainingDTO? Training { get; set; }
 

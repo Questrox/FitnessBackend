@@ -9,10 +9,7 @@ namespace Application.Models.DTOs
 {
     public class TrainingDTO
     {
-        public TrainingDTO()
-        {
-            TrainingReservations = new HashSet<TrainingReservationDTO>();
-        }
+        public TrainingDTO() { }
 
         public TrainingDTO(Training t)
         {
@@ -24,14 +21,11 @@ namespace Application.Models.DTOs
             CoachId = t.CoachId;
             TrainingTypeId = t.TrainingTypeId;
             TrainingStatusId = t.TrainingStatusId;
+            ReservationsCount = t.TrainingReservations.Count(tr => tr.ReservationStatusId != (int)ReservationStatusEnum.Cancelled);
 
             Coach = t.Coach == null ? null : new CoachDTO(t.Coach);
             TrainingType = t.TrainingType == null ? null : new TrainingTypeDTO(t.TrainingType);
             TrainingStatus = t.TrainingStatus == null ? null : new TrainingStatusDTO(t.TrainingStatus);
-
-            TrainingReservations = t.TrainingReservations
-                .Select(x => new TrainingReservationDTO(x))
-                .ToList();
         }
 
         public TrainingDTO(TrainingDTO t)
@@ -44,10 +38,11 @@ namespace Application.Models.DTOs
             CoachId = t.CoachId;
             TrainingTypeId = t.TrainingTypeId;
             TrainingStatusId = t.TrainingStatusId;
+            ReservationsCount = t.ReservationsCount;
+
             Coach = t.Coach;
             TrainingType = t.TrainingType;
             TrainingStatus = t.TrainingStatus;
-            TrainingReservations = t.TrainingReservations;
         }
 
         public int Id { get; set; }
@@ -66,12 +61,12 @@ namespace Application.Models.DTOs
 
         public int TrainingStatusId { get; set; }
 
+        public int ReservationsCount { get; set; }
+
         public virtual CoachDTO? Coach { get; set; }
 
         public virtual TrainingTypeDTO? TrainingType { get; set; }
 
         public virtual TrainingStatusDTO? TrainingStatus { get; set; }
-
-        public virtual ICollection<TrainingReservationDTO> TrainingReservations { get; set; }
     }
 }

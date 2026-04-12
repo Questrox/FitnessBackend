@@ -1,7 +1,9 @@
 ﻿using Application.Models.CreateDTOs;
 using Application.Models.DTOs;
 using Application.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -9,8 +11,34 @@ namespace WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class TrainingController(TrainingService _trainingService, ILogger<TrainingController> _logger) : ControllerBase
+    public class TrainingController(TrainingService _trainingService, ClientService _clientService,
+        ILogger<TrainingController> _logger) : ControllerBase
     {
+        [HttpGet("[action]")]
+        [Authorize]
+        public async Task<ActionResult<string>> CheckReservationPossibility(int trainingId, int? clientId)
+        {
+            var userName = User.Identity?.IsAuthenticated == true ? User.Identity.Name : "Гость";
+            bool isClient = false;
+            if (clientId == null) // Если запрос делает сам клиент
+            {
+                isClient = true;
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (userId == null)
+                    throw new UnauthorizedAccessException("Пользователь не авторизован");
+                var client = await _clientService.GetClientByUserIdAsync(userId);
+                if (client == null)
+                    throw new KeyNotFoundException("Клиент не найден");
+                clientId = client.Id;
+                _logger.LogInformation($"Клиент {userName} проверяет возможность записи на тренировку с Id {trainingId}");
+            }
+            else // Если запрос делает администратор
+                _logger.LogInformation($"Пользователь {userName} проверяет возможность записи клиента с Id {clientId} " +
+                    $"на тренировку с Id {trainingId}");
+
+            var result = await _trainingService.CheckReservationPossibilityAsync(trainingId, clientId, isClient);
+            return Ok(result);
+        }
         [HttpGet("[action]")]
         public async Task<ActionResult<IEnumerable<TrainingDTO>>> GetTrainingsForPeriod(DateTime start, DateTime end)
         {

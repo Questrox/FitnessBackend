@@ -14,7 +14,7 @@ namespace Domain.Entities
         public int Id { get; set; }
         public int ClientId { get; set; }
         public int TrainingId { get; set; }
-        public int PaymentId { get; set; }
+        public int? PaymentId { get; set; }
         public int ReservationStatusId { get; set; }
         public virtual Client? Client { get; set; }
         public virtual Training? Training { get; set; }

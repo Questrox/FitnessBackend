@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Application.Services
 {
-    public class TrainingReservationService(ITrainingReservationRepository _reservationRep)
+    public class TrainingReservationService(ITrainingReservationRepository _reservationRep, TrainingService _trainingService)
     {
         public async Task<IEnumerable<TrainingReservationDTO>> GetClientReservationsAsync(int clientId)
         {
@@ -24,14 +24,19 @@ namespace Application.Services
             return reservation == null ? null : new TrainingReservationDTO(reservation);
         }
 
-        public async Task<TrainingReservationDTO> AddReservationAsync(CreateTrainingReservationDTO dto)
+        public async Task<TrainingReservationDTO> AddReservationAsync(CreateTrainingReservationDTO dto, bool isClient)
         {
+            if (dto.ClientId == null)
+                throw new ArgumentException("ClientId = null");
+            string error = await _trainingService.CheckReservationPossibilityAsync(dto.TrainingId, dto.ClientId, isClient);
+            if (error != String.Empty)
+                throw new ArgumentException(error);
             var reservation = new TrainingReservation
             {
-                ClientId = dto.ClientId,
-                TrainingId = dto.TrainingId
+                ClientId = (int)dto.ClientId,
+                TrainingId = dto.TrainingId,
+                ReservationStatusId = (int)ReservationStatusEnum.Pending
             };
-
             await _reservationRep.AddAsync(reservation);
             reservation = await _reservationRep.GetReservationById(reservation.Id);
 
@@ -49,6 +54,21 @@ namespace Application.Services
             await _reservationRep.UpdateAsync(existing);
 
             return new TrainingReservationDTO(existing);
+        }
+
+        public async Task<TrainingReservationDTO> CancelReservationAsync(int id)
+        {
+            var existing = await _reservationRep.GetReservationById(id) ??
+                throw new KeyNotFoundException($"Запись с Id {id} не найдена");
+            if (existing.ReservationStatusId != (int)ReservationStatusEnum.Pending)
+                throw new ArgumentException("Можно отменить только запись со статусом \"Ожидание\"");
+
+
+            existing.ReservationStatusId = (int)ReservationStatusEnum.Cancelled;
+
+            await _reservationRep.UpdateAsync(existing);
+            var updated = await _reservationRep.GetReservationById(id);
+            return new TrainingReservationDTO(updated);
         }
 
         public async Task DeleteReservation(int id)

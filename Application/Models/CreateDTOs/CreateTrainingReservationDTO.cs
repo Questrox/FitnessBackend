@@ -8,7 +8,7 @@ namespace Application.Models.CreateDTOs
 {
     public class CreateTrainingReservationDTO
     {
-        public int ClientId { get; set; }
+        public int? ClientId { get; set; }
 
         public int TrainingId { get; set; }
     }

@@ -12,6 +12,34 @@ namespace Application.Services
 {
     public class TrainingService(ITrainingRepository _trainingRep, ITrainingTypeRepository _typeRep, ICoachRepository _coachRep)
     {
+        public async Task<string> CheckReservationPossibilityAsync(int trainingId, int? clientId, bool isClient)
+        {
+            if (clientId == null)
+                throw new ArgumentException("ClientId = null");
+
+            var training = await _trainingRep.GetTrainingByIdAsync(trainingId);
+            if (training == null)
+                throw new ArgumentException($"Не найдена тренировка с Id {trainingId}");
+            if (training.TrainingStatusId == (int)TrainingStatusEnum.Completed)
+                return "Тренировка уже была проведена";
+            if (training.TrainingStatusId == (int)TrainingStatusEnum.Cancelled)
+                return "Тренировка отменена";
+            if (DateTime.Now > training.StartDate)
+                return "Нельзя записаться на тренировку после ее начала";
+
+            var trainingType = await _typeRep.GetTrainingTypeByIdAsync(training.TrainingTypeId);
+            if (training.TrainingReservations.Any(tr => tr.ClientId == clientId && tr.ReservationStatusId != (int)ReservationStatusEnum.Cancelled))
+            {
+                if (isClient)
+                    return "Вы уже записаны";
+                else
+                    return "Клиент уже записан";
+            }
+            if (training.TrainingReservations
+                .Count(tr => tr.ReservationStatusId != (int)ReservationStatusEnum.Cancelled) >= trainingType.MaxClients)
+                return "Нет мест";
+            return String.Empty;
+        }
         public async Task<IEnumerable<TrainingDTO>> GetTrainingsForPeriodAsync(DateTime start, DateTime end)
         {
             var trainings = await _trainingRep.GetTrainingsForPeriodAsync(start, end);
