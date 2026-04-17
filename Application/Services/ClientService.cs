@@ -3,6 +3,7 @@ using Application.Models.CreateDTOs;
 using Application.Models.DTOs;
 using Domain.Entities;
 using Domain.Interfaces;
+using Domain.Models;
 using Infrastructure.Data;
 using System;
 using System.Collections.Generic;
@@ -23,6 +24,16 @@ namespace Application.Services
         {
             var clients = await _clientRep.GetFilteredClientsAsync(filter);
             return clients.Select(c => new ClientDTO(c));
+        }
+        public async Task<PagedResult<ClientDTO>> GetPagedFilteredClientsAsync(int page, int pageSize, string filter)
+        {
+            var pagedClients = await _clientRep.GetPagedFilteredClientsAsync(page, pageSize, filter);
+            var dtoItems = pagedClients.Items.Select(c => new ClientDTO(c)).ToList();
+            return new PagedResult<ClientDTO>
+            {
+                Items = dtoItems,
+                TotalCount = pagedClients.TotalCount
+            };
         }
         public async Task<ClientDTO?> GetClientByPhoneAsync(string phone)
         {

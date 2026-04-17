@@ -3,6 +3,7 @@ using Application.Models.CreateDTOs;
 using Application.Models.DTOs;
 using Application.Services;
 using Domain.Entities;
+using Domain.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Numerics;
@@ -32,6 +33,18 @@ namespace WebAPI.Controllers
             _logger.LogInformation($"Пользователь {userName} получает список клиентов с фильтром \"{filter}\"");
 
             var clients = await _clientService.GetFilteredClientsAsync(filter);
+            return Ok(clients);
+        }
+        [HttpGet("[action]")]
+        public async Task<ActionResult<PagedResult<ClientDTO>>> GetPagedFilteredClients(int page, int pageSize, string? filter)
+        {
+            var userName = User.Identity?.IsAuthenticated == true ? User.Identity.Name : "Гость";
+            if (string.IsNullOrEmpty(filter))
+                filter = "";
+            _logger.LogInformation($"Пользователь {userName} получает страницу {page} списка клиентов (размер страницы: {pageSize}) " +
+                $"с фильтром \"{filter}\"");
+
+            var clients = await _clientService.GetPagedFilteredClientsAsync(page, pageSize, filter);
             return Ok(clients);
         }
         [HttpGet("[action]")]

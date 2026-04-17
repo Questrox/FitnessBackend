@@ -1,5 +1,6 @@
 ﻿using Domain.Entities;
 using Domain.Interfaces;
+using Domain.Models;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -27,6 +28,24 @@ namespace Infrastructure.Repositories
                 .Include(c => c.User)
                 .Where(c => c.User.PhoneNumber.Contains(filter) || c.User.FullName.Contains(filter) || c.User.UserName.Contains(filter))
                 .ToListAsync();
+        }
+        public async Task<PagedResult<Client>> GetPagedFilteredClientsAsync(int page, int pageSize, string filter)
+        {
+            var query = _dbSet.Include(c => c.Memberships).ThenInclude(m => m.MembershipType)
+                .Include(c => c.TrainingReservations).ThenInclude(c => c.Training)
+                .Include(c => c.User)
+                .Where(c => c.User.PhoneNumber.Contains(filter) || c.User.FullName.Contains(filter) || c.User.UserName.Contains(filter));
+
+            var total = await query.CountAsync();
+            var items = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+            return new PagedResult<Client>
+            {
+                Items = items,
+                TotalCount = total
+            };
         }
         public async Task<Client?> GetClientByPhoneAsync(string phone)
         {
