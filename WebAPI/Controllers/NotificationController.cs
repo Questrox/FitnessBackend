@@ -1,7 +1,9 @@
 ﻿using Application.Models.CreateDTOs;
 using Application.Models.DTOs;
 using Application.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -62,6 +64,19 @@ namespace WebAPI.Controllers
             _logger.LogInformation($"Пользователь {userName} обновляет уведомление с id {id}");
 
             var updatedNotification = await _notificationService.UpdateNotificationAsync(notification);
+            return Ok(updatedNotification);
+        }
+
+        [HttpPut("[action]/{id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<CancellationNotificationDTO>> ConfirmNotification(int id)
+        {
+            var userName = User.Identity?.IsAuthenticated == true ? User.Identity.Name : "Гость";
+            _logger.LogInformation($"Пользователь {userName} обновляет уведомление с id {id}");
+
+            string adminId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var updatedNotification = await _notificationService.ConfirmNotificationAsync(id, adminId);
             return Ok(updatedNotification);
         }
 

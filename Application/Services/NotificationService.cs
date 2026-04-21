@@ -59,6 +59,22 @@ namespace Application.Services
             return new CancellationNotificationDTO(existing);
         }
 
+        public async Task<CancellationNotificationDTO> ConfirmNotificationAsync(int id, string adminId)
+        {
+            var existing = await _notificationRep.GetNotificationByIdAsync(id) ??
+                throw new KeyNotFoundException($"Уведомление с Id {id} не найдено");
+
+            if (existing.IsNotified)
+                throw new ArgumentException("Клиент уже уведомлен");
+
+            existing.IsNotified = true;
+            existing.AdminId = adminId;
+            await _notificationRep.UpdateAsync(existing);
+
+            var updated = await _notificationRep.GetNotificationByIdAsync(id);
+            return new CancellationNotificationDTO(updated);
+        }
+
         public async Task DeleteNotification(int id)
         {
             var notification = await _notificationRep.GetNotificationByIdAsync(id) ??

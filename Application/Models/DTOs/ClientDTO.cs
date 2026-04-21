@@ -13,7 +13,6 @@ namespace Application.Models.DTOs
         {
             Memberships = new HashSet<MembershipDTO>();
             TrainingReservations = new HashSet<TrainingReservationDTO>();
-            CancellationNotifications = new HashSet<CancellationNotificationDTO>();
         }
         public ClientDTO(Client c)
         {
@@ -23,7 +22,6 @@ namespace Application.Models.DTOs
             User = c.User == null ? null : new UserDTO(c.User);
             Memberships = c.Memberships.Select(m => new MembershipDTO(m)).ToList();
             TrainingReservations = c.TrainingReservations.Select(t => new TrainingReservationDTO(t)).ToList();
-            CancellationNotifications = c.CancellationNotifications.Select(c => new CancellationNotificationDTO(c)).ToList();
         }
         public ClientDTO(ClientDTO c)
         {
@@ -33,7 +31,6 @@ namespace Application.Models.DTOs
             User = c.User;
             Memberships = c.Memberships;
             TrainingReservations = c.TrainingReservations;
-            CancellationNotifications = c.CancellationNotifications;
         }
         public int Id { get; set; }
         public decimal Bonuses { get; set; }
@@ -41,6 +38,5 @@ namespace Application.Models.DTOs
         public virtual UserDTO? User { get; set; }
         public virtual ICollection<MembershipDTO> Memberships { get; set; }
         public virtual ICollection<TrainingReservationDTO> TrainingReservations { get; set; }
-        public virtual ICollection<CancellationNotificationDTO> CancellationNotifications { get; set; }
     }
 }

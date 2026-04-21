@@ -17,7 +17,7 @@ namespace Domain.Entities
         public virtual Training? Training { get; set; }
         public int ClientId { get; set; }
         public virtual Client? Client { get; set; }
-        public string AdminId { get; set; }
+        public string? AdminId { get; set; }
         public User? Admin { get; set; }
         public bool IsDeleted { get; set; } = false;
     }

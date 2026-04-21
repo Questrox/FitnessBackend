@@ -2,6 +2,7 @@
 using Application.Models.DTOs;
 using Domain.Entities;
 using Domain.Interfaces;
+using Infrastructure.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,8 @@ using System.Threading.Tasks;
 
 namespace Application.Services
 {
-    public class TrainingService(ITrainingRepository _trainingRep, ITrainingTypeRepository _typeRep, ICoachRepository _coachRep)
+    public class TrainingService(ITrainingRepository _trainingRep, ITrainingTypeRepository _typeRep, ICoachRepository _coachRep, 
+        INotificationRepository _notificationRepository, FitnessDb _db)
     {
         public async Task<string> CheckReservationPossibilityAsync(int trainingId, int? clientId, bool isClient)
         {
@@ -97,6 +99,59 @@ namespace Application.Services
             await _trainingRep.UpdateAsync(existing);
 
             return new TrainingDTO(existing);
+        }
+
+        public async Task<TrainingDTO> CancelTrainingAsync(int id)
+        {
+            var existing = await _trainingRep.GetTrainingByIdAsync(id) ??
+                throw new KeyNotFoundException($"Тренировка с Id {id} не найдена");
+
+            if (existing.TrainingStatusId == (int)TrainingStatusEnum.Completed)
+                throw new ArgumentException("Нельзя отменить уже проведенную тренировку");
+            if (existing.TrainingStatusId == (int)TrainingStatusEnum.Cancelled)
+                throw new ArgumentException("Тренировка уже отменена");
+            if (existing.StartDate <= DateTime.Now)
+                throw new ArgumentException("Тренировка уже началась, ее нельзя отменить");
+
+            await using var transaction = await _db.Database.BeginTransactionAsync();
+            try
+            {
+                // меняем статус тренировки
+                existing.TrainingStatusId = (int)TrainingStatusEnum.Cancelled;
+                await _trainingRep.UpdateAsync(existing);
+                // создаем уведомления для активных записей
+                List<CancellationNotification> notifications = new List<CancellationNotification>();
+                foreach (var res in existing.TrainingReservations)
+                {
+                    if (res.ReservationStatusId == (int)ReservationStatusEnum.Cancelled)
+                        continue;
+                    CancellationNotification notification = new CancellationNotification
+                    {
+                        TrainingId = id,
+                        ClientId = res.ClientId,
+                        IsNotified = false
+                    };
+                    notifications.Add(notification);
+                }
+                if (notifications.Count > 0)
+                    await _notificationRepository.AddRangeAsync(notifications);
+
+                await transaction.CommitAsync();
+
+                var updated = await _trainingRep.GetTrainingByIdAsync(existing.Id);
+                return new TrainingDTO(updated);
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
+
+        public async Task<IEnumerable<TrainingWithNotificationsDTO>> GetTrainingsWithNotificationsAsync()
+        {
+            var trainings = await _trainingRep.GetTrainingsWithNotificationsAsync();
+            return trainings.Select(t => new TrainingWithNotificationsDTO(t)).ToList();
         }
 
         public async Task DeleteTraining(int id)

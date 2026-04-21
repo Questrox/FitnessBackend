@@ -19,6 +19,8 @@ namespace Application.Models.DTOs
             Training = c.Training == null ? null : new TrainingDTO(c.Training);
             ClientId = c.ClientId;
             Client = c.Client == null ? null : new ClientDTO(c.Client);
+            AdminId = c.AdminId;
+            Admin = c.Admin == null ? null : new UserDTO(c.Admin);
         }
 
         public CancellationNotificationDTO(CancellationNotificationDTO c)
@@ -29,6 +31,8 @@ namespace Application.Models.DTOs
             Training = c.Training;
             ClientId = c.ClientId;
             Client = c.Client;
+            AdminId = c.AdminId;
+            Admin = c.Admin;
         }
 
         public int Id { get; set; }
@@ -42,5 +46,8 @@ namespace Application.Models.DTOs
         public int ClientId { get; set; }
 
         public virtual ClientDTO? Client { get; set; }
+
+        public string? AdminId { get; set; }
+        public UserDTO? Admin { get; set; }
     }
 }

@@ -11,5 +11,6 @@ namespace Domain.Interfaces
     {
         Task<IEnumerable<Training>> GetTrainingsForPeriodAsync(DateTime start, DateTime end);
         Task<Training?> GetTrainingByIdAsync(int id);
+        Task<IEnumerable<Training>> GetTrainingsWithNotificationsAsync();
     }
 }

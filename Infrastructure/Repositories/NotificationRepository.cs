@@ -19,6 +19,7 @@ namespace Infrastructure.Repositories
             => await _dbSet.Include(n => n.Client).Include(n => n.Training)
             .Where(n => !n.IsNotified).ToListAsync();
         public async Task<CancellationNotification?> GetNotificationByIdAsync(int id)
-            => await _dbSet.Include(n => n.Client).Include(n => n.Training).FirstOrDefaultAsync(n => n.Id == id);
+            => await _dbSet.Include(n => n.Client).ThenInclude(c => c.User).Include(n => n.Admin)
+            .Include(n => n.Training).ThenInclude(t => t.TrainingType).FirstOrDefaultAsync(n => n.Id == id);
     }
 }

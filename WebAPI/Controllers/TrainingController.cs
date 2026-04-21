@@ -83,6 +83,28 @@ namespace WebAPI.Controllers
             return Ok(updatedTraining);
         }
 
+        [HttpPut("[action]/{id}")]
+        [Authorize]
+        public async Task<ActionResult<TrainingDTO>> CancelTraining(int id)
+        {
+            var userName = User.Identity?.IsAuthenticated == true ? User.Identity.Name : "Гость";
+            _logger.LogInformation($"Пользователь {userName} отменяет тренировку с id {id}");
+
+            var result = await _trainingService.CancelTrainingAsync(id);
+            return Ok(result);
+        }
+
+        [HttpGet("[action]")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<IEnumerable<TrainingWithNotificationsDTO>>> GetTrainingsWithNotifications()
+        {
+            var userName = User.Identity?.IsAuthenticated == true ? User.Identity.Name : "Гость";
+            _logger.LogInformation($"Пользователь {userName} получает список тренировок с уведомлениями об отмене");
+
+            var result = await _trainingService.GetTrainingsWithNotificationsAsync();
+            return Ok(result);
+        }
+
         [HttpDelete("[action]/{id}")]
         public async Task<IActionResult> DeleteTraining(int id)
         {
