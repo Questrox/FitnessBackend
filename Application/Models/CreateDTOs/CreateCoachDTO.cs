@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,7 +10,8 @@ namespace Application.Models.CreateDTOs
     public class CreateCoachDTO
     {
         public int Experience { get; set; }
-        public string? PhotoPath { get; set; }
-        public string? UserId { get; set; }
+        public string? FullName { get; set; }
+        public string? PhoneNumber { get; set; }
+        public IFormFile Image { get; set; } = null!;
     }
 }

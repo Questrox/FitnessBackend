@@ -1,4 +1,5 @@
-﻿using Application.Models.CreateDTOs;
+﻿using Application.Models;
+using Application.Models.CreateDTOs;
 using Application.Models.DTOs;
 using Application.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -43,7 +44,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpPost("[action]")]
-        public async Task<ActionResult<CoachDTO>> AddCoach(CreateCoachDTO coach)
+        public async Task<ActionResult<LoginCredentials>> AddCoach(CreateCoachDTO coach)
         {
             var userName = User.Identity?.IsAuthenticated == true ? User.Identity.Name : "Гость";
             _logger.LogInformation($"Пользователь {userName} создаёт тренера");
@@ -80,7 +81,7 @@ namespace WebAPI.Controllers
             var userName = User.Identity?.IsAuthenticated == true ? User.Identity.Name : "Гость";
             _logger.LogInformation($"Пользователь {userName} мягко удаляет тренера с id {id}");
 
-            await _coachService.DeleteCoach(id);
+            await _coachService.SoftDeleteCoach(id);
             return NoContent();
         }
     }
