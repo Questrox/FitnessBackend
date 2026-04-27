@@ -5,6 +5,7 @@ using Domain.Entities;
 using Domain.Interfaces;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +14,8 @@ using System.Threading.Tasks;
 
 namespace Application.Services
 {
-    public class CoachService(FitnessDb _db, AuthService _authService, ICoachRepository _coachRep, IWebHostEnvironment env)
+    public class CoachService(FitnessDb _db, UserManager<User> _userManager, AuthService _authService, 
+        ICoachRepository _coachRep, IWebHostEnvironment _env)
     {
         public async Task<IEnumerable<CoachDTO>> GetCoachesAsync()
         {
@@ -68,7 +70,7 @@ namespace Application.Services
                 // Добавление фото
                 if (coach.Image != null && coach.Image.Length > 0)
                 {
-                    var uploadsFolder = Path.Combine(env.WebRootPath, "images", "Coaches");
+                    var uploadsFolder = Path.Combine(_env.WebRootPath, "images", "Coaches");
 
                     if (!Directory.Exists(uploadsFolder))
                         Directory.CreateDirectory(uploadsFolder);
@@ -100,18 +102,77 @@ namespace Application.Services
             }
         }
 
-        public async Task<CoachDTO> UpdateCoachAsync(CoachDTO coach)
+        public async Task<CoachDTO> UpdateCoachAsync(UpdateCoachDTO coach)
         {
             var existingCoach = await _coachRep.GetCoachByIdAsync(coach.Id) ??
                 throw new KeyNotFoundException($"Тренер с Id {coach.Id} не найден");
 
-            existingCoach.Experience = coach.Experience;
-            existingCoach.PhotoPath = coach.PhotoPath;
-            existingCoach.UserId = coach.UserId;
+            if (coach.Experience < 0)
+                throw new ArgumentException($"Стаж не может быть отрицательным. Введенный стаж: {coach.Experience}");
+            if (string.IsNullOrEmpty(coach.FullName))
+                throw new ArgumentException("Необходимо ввести ФИО");
+            if (string.IsNullOrEmpty(coach.PhoneNumber))
+                throw new ArgumentException("Необходимо ввести номер телефона");
 
-            await _coachRep.UpdateAsync(existingCoach);
+            string? newFileName = null;
+            string? newFilePath = null;
+            await using var transaction = await _db.Database.BeginTransactionAsync();
 
-            return new CoachDTO(existingCoach);
+            try
+            {
+                var user = existingCoach.User;
+
+                user.FullName = coach.FullName;
+                user.PhoneNumber = coach.PhoneNumber;
+
+                var result = await _userManager.UpdateAsync(user);
+
+                if (!result.Succeeded)
+                {
+                    var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                    throw new ArgumentException(errors);
+                }
+
+                existingCoach.Experience = coach.Experience;
+
+                string? oldPhotoPath = existingCoach.PhotoPath;
+                if (coach.Image != null && coach.Image.Length > 0)
+                {
+                    var uploadsFolder = Path.Combine(_env.WebRootPath, "images", "Coaches");
+                    if (!Directory.Exists(uploadsFolder))
+                        Directory.CreateDirectory(uploadsFolder);
+
+                    newFileName = $"{Guid.NewGuid()}{Path.GetExtension(coach.Image.FileName)}";
+                    newFilePath = Path.Combine(uploadsFolder, newFileName);
+
+                    using (var stream = new FileStream(newFilePath, FileMode.Create))
+                    {
+                        await coach.Image.CopyToAsync(stream);
+                    }
+                    existingCoach.PhotoPath = $"images/Coaches/{newFileName}";
+                }
+
+                await _coachRep.UpdateAsync(existingCoach);
+                await transaction.CommitAsync();
+
+                // Если транзакция прошла, удаляем старый файл
+                if (newFileName != null && !string.IsNullOrEmpty(oldPhotoPath))
+                {
+                    var oldFullPath = Path.Combine(_env.WebRootPath, oldPhotoPath);
+                    if (File.Exists(oldFullPath))
+                        File.Delete(oldFullPath);
+                }
+
+                return new CoachDTO(existingCoach);
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                // Удаляем новый файл, если транзакция не прошла
+                if (newFilePath != null && File.Exists(newFilePath))
+                    File.Delete(newFilePath);
+                throw;
+            }
         }
 
         public async Task DeleteCoach(int coachId)

@@ -53,14 +53,14 @@ namespace WebAPI.Controllers
             return Ok(newCoach);
         }
 
-        [HttpPut("[action]/{id}")]
-        public async Task<ActionResult<CoachDTO>> UpdateCoach(int id, CoachDTO coach)
+        [HttpPut("[action]/{routeId}")]
+        public async Task<ActionResult<CoachDTO>> UpdateCoach(int routeId, UpdateCoachDTO coach)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            if (id != coach.Id) return BadRequest();
+            if (routeId != coach.Id) return BadRequest();
 
             var userName = User.Identity?.IsAuthenticated == true ? User.Identity.Name : "Гость";
-            _logger.LogInformation($"Пользователь {userName} обновляет тренера с id {id}");
+            _logger.LogInformation($"Пользователь {userName} обновляет тренера с id {routeId}");
 
             var updatedCoach = await _coachService.UpdateCoachAsync(coach);
             return Ok(updatedCoach);

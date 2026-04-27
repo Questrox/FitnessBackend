@@ -36,7 +36,7 @@ namespace WebAPI.Controllers
         public async Task<ActionResult<CoachScheduleDTO>> AddCoachSchedule(CreateCoachScheduleDTO schedule)
         {
             var userName = User.Identity?.IsAuthenticated == true ? User.Identity.Name : "Гость";
-            _logger.LogInformation($"Пользователь {userName} создаёт расписание тренера");
+            _logger.LogInformation($"Пользователь {userName} создаёт расписание тренера с Id {schedule.CoachId}");
 
             var newSchedule = await _scheduleService.AddCoachScheduleAsync(schedule);
             return Ok(newSchedule);
