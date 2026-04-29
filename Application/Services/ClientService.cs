@@ -43,7 +43,17 @@ namespace Application.Services
         public async Task<ClientDTO?> GetClientByIdAsync(int id)
         {
             var client = await _clientRep.GetClientByIdAsync(id);
-            return client == null ? null : new ClientDTO(client);
+            if (client == null)
+                return null;
+            var clientDto = new ClientDTO(client);
+
+            if (clientDto.TrainingReservations != null)
+            {
+                clientDto.TrainingReservations = clientDto.TrainingReservations
+                    .OrderByDescending(tr => tr.Training?.StartDate)
+                    .ToList();
+            }
+            return clientDto;
         }
         public async Task<ClientDTO?> GetClientByUserIdAsync(string userId)
         {

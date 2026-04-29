@@ -13,12 +13,12 @@ namespace Infrastructure.Repositories
     public class TrainingReservationRepository : Repository<TrainingReservation>, ITrainingReservationRepository
     {
         public TrainingReservationRepository(FitnessDb db) : base(db) { }
-        public async Task<IEnumerable<TrainingReservation>> GetClientReservations(int clientId)
+        public async Task<IEnumerable<TrainingReservation>> GetClientReservationsAsync(int clientId)
             => await _dbSet.Include(t => t.Training).ThenInclude(t => t.TrainingType)
             .Include(t => t.Training).ThenInclude(t => t.Coach).ThenInclude(c => c.User)
             .Include(t => t.ReservationStatus).Include(t => t.Payment)
             .Where(t => t.ClientId == clientId).ToListAsync();
-        public async Task<TrainingReservation?> GetReservationById(int id)
+        public async Task<TrainingReservation?> GetReservationByIdAsync(int id)
             => await _dbSet.Include(t => t.Training).ThenInclude(t => t.TrainingType)
             .Include(t => t.Training).ThenInclude(t => t.Coach).ThenInclude(c => c.User)
             .Include(t => t.ReservationStatus).Include(t => t.Payment)

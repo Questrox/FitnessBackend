@@ -83,6 +83,17 @@ namespace WebAPI.Controllers
             var updatedReservation = await _reservationService.CancelReservationAsync(id);
             return Ok(updatedReservation);
         }
+        [HttpPut("[action]/{reservationId}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<TrainingReservationDTO>> ConfirmReservationPayment(int reservationId, CreatePaymentDTO dto)
+        {
+            var userName = User.Identity?.IsAuthenticated == true ? User.Identity.Name : "Гость";
+            _logger.LogInformation($"Пользователь {userName} подтверждает оплату записи на тренировку с id {reservationId}");
+            dto.AdminId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var result = await _reservationService.ConfirmPaymentAsync(reservationId, dto);
+            return Ok(result);
+        }
 
         [HttpDelete("[action]/{id}")]
         public async Task<IActionResult> DeleteReservation(int id)

@@ -47,7 +47,6 @@ namespace Application.Services
 
                 var paymentDto = new CreatePaymentDTO
                 {
-                    Date = DateTime.Now,
                     Price = mt.Price,
                     CashbackPercentage = mt.CashbackPercentage,
                     PaidWithBonuses = membership.PaidWithBonuses,

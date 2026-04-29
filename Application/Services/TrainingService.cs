@@ -119,12 +119,26 @@ namespace Application.Services
                 // меняем статус тренировки
                 existing.TrainingStatusId = (int)TrainingStatusEnum.Cancelled;
                 await _trainingRep.UpdateAsync(existing);
+
+                // отменяем записи
+                var reservationsToUpdate = existing.TrainingReservations
+                    .Where(r => r.ReservationStatusId != (int)ReservationStatusEnum.Cancelled)
+                    .ToList();
+
+                foreach (var reservation in reservationsToUpdate)
+                {
+                    reservation.ReservationStatusId = (int)ReservationStatusEnum.Cancelled;
+                }
+
+                if (reservationsToUpdate.Any())
+                {
+                    await _db.SaveChangesAsync();
+                }
+
                 // создаем уведомления для активных записей
                 List<CancellationNotification> notifications = new List<CancellationNotification>();
-                foreach (var res in existing.TrainingReservations)
+                foreach (var res in reservationsToUpdate)
                 {
-                    if (res.ReservationStatusId == (int)ReservationStatusEnum.Cancelled)
-                        continue;
                     CancellationNotification notification = new CancellationNotification
                     {
                         TrainingId = id,

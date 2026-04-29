@@ -9,7 +9,7 @@ namespace Domain.Interfaces
 {
     public interface ITrainingReservationRepository : IRepository<TrainingReservation>
     {
-        Task<IEnumerable<TrainingReservation>> GetClientReservations(int clientId);
-        Task<TrainingReservation?> GetReservationById(int id);
+        Task<IEnumerable<TrainingReservation>> GetClientReservationsAsync(int clientId);
+        Task<TrainingReservation?> GetReservationByIdAsync(int id);
     }
 }

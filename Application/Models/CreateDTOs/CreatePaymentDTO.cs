@@ -8,8 +8,6 @@ namespace Application.Models.CreateDTOs
 {
     public class CreatePaymentDTO
     {
-        public DateTime Date { get; set; }
-
         public decimal Price { get; set; }
 
         public int CashbackPercentage { get; set; }

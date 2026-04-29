@@ -2,6 +2,7 @@
 using Application.Models.DTOs;
 using Domain.Entities;
 using Domain.Interfaces;
+using Infrastructure.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,17 +11,18 @@ using System.Threading.Tasks;
 
 namespace Application.Services
 {
-    public class TrainingReservationService(ITrainingReservationRepository _reservationRep, TrainingService _trainingService)
+    public class TrainingReservationService(FitnessDb _db, ITrainingReservationRepository _reservationRep, 
+        TrainingService _trainingService, PaymentService _paymentService)
     {
         public async Task<IEnumerable<TrainingReservationDTO>> GetClientReservationsAsync(int clientId)
         {
-            var reservations = await _reservationRep.GetClientReservations(clientId);
+            var reservations = await _reservationRep.GetClientReservationsAsync(clientId);
             return reservations.Select(r => new TrainingReservationDTO(r));
         }
 
         public async Task<TrainingReservationDTO?> GetReservationByIdAsync(int id)
         {
-            var reservation = await _reservationRep.GetReservationById(id);
+            var reservation = await _reservationRep.GetReservationByIdAsync(id);
             return reservation == null ? null : new TrainingReservationDTO(reservation);
         }
 
@@ -38,18 +40,20 @@ namespace Application.Services
                 ReservationStatusId = (int)ReservationStatusEnum.Pending
             };
             await _reservationRep.AddAsync(reservation);
-            reservation = await _reservationRep.GetReservationById(reservation.Id);
+            reservation = await _reservationRep.GetReservationByIdAsync(reservation.Id);
 
             return new TrainingReservationDTO(reservation);
         }
 
         public async Task<TrainingReservationDTO> UpdateReservationAsync(TrainingReservationDTO dto)
         {
-            var existing = await _reservationRep.GetReservationById(dto.Id) ??
+            var existing = await _reservationRep.GetReservationByIdAsync(dto.Id) ??
                 throw new KeyNotFoundException($"Запись с Id {dto.Id} не найдена");
 
             existing.ClientId = dto.ClientId;
             existing.TrainingId = dto.TrainingId;
+            existing.PaymentId = dto.PaymentId;
+            existing.ReservationStatusId = dto.ReservationStatusId;
 
             await _reservationRep.UpdateAsync(existing);
 
@@ -58,7 +62,7 @@ namespace Application.Services
 
         public async Task<TrainingReservationDTO> CancelReservationAsync(int id)
         {
-            var existing = await _reservationRep.GetReservationById(id) ??
+            var existing = await _reservationRep.GetReservationByIdAsync(id) ??
                 throw new KeyNotFoundException($"Запись с Id {id} не найдена");
             if (existing.ReservationStatusId != (int)ReservationStatusEnum.Pending)
                 throw new ArgumentException("Можно отменить только запись со статусом \"Ожидание\"");
@@ -67,20 +71,51 @@ namespace Application.Services
             existing.ReservationStatusId = (int)ReservationStatusEnum.Cancelled;
 
             await _reservationRep.UpdateAsync(existing);
-            var updated = await _reservationRep.GetReservationById(id);
+            var updated = await _reservationRep.GetReservationByIdAsync(id);
             return new TrainingReservationDTO(updated);
+        }
+
+        public async Task<TrainingReservationDTO> ConfirmPaymentAsync(int reservationId, CreatePaymentDTO dto)
+        {
+            var reservation = await _reservationRep.GetReservationByIdAsync(reservationId);
+            if (reservation == null)
+                throw new ArgumentException($"Не найдена запись с Id {reservationId}");
+            if (reservation.ReservationStatusId == (int)ReservationStatusEnum.Pending)
+                throw new ArgumentException("Нельзя совершить оплату, т.к. тренировка еще не посещена");
+            if (reservation.ReservationStatusId == (int)ReservationStatusEnum.Paid)
+                throw new ArgumentException("Оплата уже была произведена");
+            if (reservation.ReservationStatusId == (int)ReservationStatusEnum.Cancelled)
+                throw new ArgumentException("Нельзя совершить оплату отмененной записи");
+
+            await using var transaction = await _db.Database.BeginTransactionAsync();
+
+            try
+            {
+                var payment = await _paymentService.AddPaymentAsync(dto);
+                reservation.PaymentId = payment.Id;
+                reservation.ReservationStatusId = (int)ReservationStatusEnum.Paid;
+                await _reservationRep.UpdateAsync(reservation);
+                var updated = await _reservationRep.GetReservationByIdAsync(reservationId);
+                await transaction.CommitAsync();
+                return new TrainingReservationDTO(updated);
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
 
         public async Task DeleteReservation(int id)
         {
-            var reservation = await _reservationRep.GetReservationById(id) ??
+            var reservation = await _reservationRep.GetReservationByIdAsync(id) ??
                 throw new KeyNotFoundException($"Запись с Id {id} не найдена");
 
             await _reservationRep.DeleteAsync(reservation);
         }
         public async Task SoftDeleteReservation(int id)
         {
-            var reservation = await _reservationRep.GetReservationById(id) ??
+            var reservation = await _reservationRep.GetReservationByIdAsync(id) ??
                 throw new KeyNotFoundException($"Запись с Id {id} не найдена");
 
             await _reservationRep.SoftDeleteAsync(reservation);

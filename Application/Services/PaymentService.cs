@@ -43,7 +43,7 @@ namespace Application.Services
 
             var payment = new Payment
             {
-                Date = dto.Date,
+                Date = DateTime.Now,
                 Price = dto.Price,
                 CashbackPercentage = dto.CashbackPercentage,
                 PaidWithBonuses = dto.PaidWithBonuses,
