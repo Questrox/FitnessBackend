@@ -15,12 +15,18 @@ namespace Infrastructure.Repositories
         public CoachRepository(FitnessDb db) : base(db) { }
         public async Task<IEnumerable<Coach>> GetCoachesAsync()
         {
-            return await _dbSet.Include(c => c.CoachSchedules).Include(c => c.User).ToListAsync();
+            return await _dbSet.Include(c => c.CoachSchedules).Include(c => c.User).Include(c => c.Trainings).ToListAsync();
+        }
+        public async Task<Coach?> GetCoachByUserIdAsync(string userId)
+        {
+            return await _dbSet.Include(c => c.CoachSchedules).Include(c => c.User).Include(c => c.Trainings).FirstOrDefaultAsync(c => c.UserId == userId);
         }
         public async Task<IEnumerable<Coach>> GetAvailableCoachesAsync(DateTime start, DateTime end)
         {
             return await _dbSet
                 .Include(c => c.User)
+                .Include(c => c.CoachSchedules)
+                .Include(c => c.Trainings)
                 .Where(c =>
                     c.CoachSchedules.Any(cs =>
                         cs.WeekDay == start.DayOfWeek &&
@@ -38,7 +44,7 @@ namespace Infrastructure.Repositories
         }
         public async Task<Coach?> GetCoachByIdAsync(int id)
         {
-            return await _dbSet.Include(c => c.User).FirstOrDefaultAsync(c => c.Id == id);
+            return await _dbSet.Include(c => c.CoachSchedules).Include(c => c.User).Include(c => c.Trainings).FirstOrDefaultAsync(c => c.Id == id);
         }
     }
 }

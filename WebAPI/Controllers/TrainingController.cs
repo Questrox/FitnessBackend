@@ -39,6 +39,19 @@ namespace WebAPI.Controllers
             var result = await _trainingService.CheckReservationPossibilityAsync(trainingId, clientId, isClient);
             return Ok(result);
         }
+        [HttpPost("[action]")]
+        [Authorize(Roles = "Coach")]
+        public async Task<ActionResult<string>> CheckIndividualTrainingCreationPossibility(CreateIndividualTrainingDTO dto)
+        {
+            var userName = User.Identity?.IsAuthenticated == true ? User.Identity.Name : "Гость";
+            _logger.LogInformation($"Пользователь {userName} проверяет возможность создания индивидуальной тренировки с клиентом с Id {dto.ClientId} " +
+                    $"с типом тренировки {dto.TrainingTypeId}");
+
+            dto.StartDate = dto.StartDate.ToLocalTime();
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var result = await _trainingService.CheckIndividualTrainingCreationPossibilityAsync(dto, userId);
+            return Ok(result);
+        }
         [HttpGet("[action]")]
         public async Task<ActionResult<IEnumerable<TrainingDTO>>> GetTrainingsForPeriod(DateTime start, DateTime end)
         {
@@ -67,6 +80,17 @@ namespace WebAPI.Controllers
             _logger.LogInformation($"Пользователь {userName} создаёт тренировку");
 
             var newTraining = await _trainingService.AddTrainingAsync(training);
+            return Ok(newTraining);
+        }
+        [HttpPost("[action]")]
+        public async Task<ActionResult<TrainingDTO>> AddIndividualTraining(CreateIndividualTrainingDTO training)
+        {
+            var userName = User.Identity?.IsAuthenticated == true ? User.Identity.Name : "Гость";
+            _logger.LogInformation($"Пользователь {userName} создаёт индивидуальную тренировку с клиентом с Id {training.ClientId}");
+
+            training.StartDate = training.StartDate.ToLocalTime();
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var newTraining = await _trainingService.AddIndividualTrainingAsync(training, userId);
             return Ok(newTraining);
         }
 

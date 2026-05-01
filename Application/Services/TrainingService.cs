@@ -12,9 +12,10 @@ using System.Threading.Tasks;
 namespace Application.Services
 {
     public class TrainingService(ITrainingRepository _trainingRep, ITrainingTypeRepository _typeRep, ICoachRepository _coachRep, 
+        IClientRepository _clientRep, ITrainingReservationRepository _reservationRep,
         INotificationRepository _notificationRepository, FitnessDb _db)
     {
-        public async Task<string> CheckReservationPossibilityAsync(int trainingId, int? clientId, bool isClient)
+        public async Task<string> CheckReservationPossibilityAsync(int trainingId, int? clientId, bool isClient) // ДОБАВИТЬ ПРОВЕРКУ НА АБОНЕМЕНТ
         {
             if (clientId == null)
                 throw new ArgumentException("ClientId = null");
@@ -40,6 +41,50 @@ namespace Application.Services
             if (training.TrainingReservations
                 .Count(tr => tr.ReservationStatusId != (int)ReservationStatusEnum.Cancelled) >= trainingType.MaxClients)
                 return "Нет мест";
+            return String.Empty;
+        }
+
+        // ТОЖЕ ДОБАВИТЬ ПРОВЕРКУ НА АБОНЕМЕНТ
+        public async Task<string> CheckIndividualTrainingCreationPossibilityAsync(CreateIndividualTrainingDTO dto, string userId) 
+        {
+            var trainingType = await _typeRep.GetTrainingTypeByIdAsync(dto.TrainingTypeId);
+            if (trainingType == null)
+                return $"Не найден тип тренировки с Id {dto.TrainingTypeId}";
+            if (trainingType.MaxClients != 1)
+                return "Тренировка не является индивидуальной";
+
+            var client = await _clientRep.GetClientByIdAsync(dto.ClientId);
+            if (client == null)
+                return $"Не найден клиент с Id {dto.ClientId}";
+
+            var coach = await _coachRep.GetCoachByUserIdAsync(userId);
+            if (coach == null)
+                return $"Не найден тренер";
+
+            if (DateTime.Now > dto.StartDate)
+                return "Нельзя создать тренировку в прошлом";
+            bool foundSchedule = false;
+            DayOfWeek day = dto.StartDate.DayOfWeek;
+            DateTime endDate = dto.StartDate.AddMinutes(trainingType.Duration);
+            foreach (var cs in coach.CoachSchedules)
+            {
+                if (cs.WeekDay == day && cs.StartTime <= dto.StartDate.TimeOfDay && cs.EndTime >= endDate.TimeOfDay)
+                {
+                    foundSchedule = true; 
+                    break;
+                }
+            }
+            if (!foundSchedule)
+                return "Данная тренировка выходит за границы вашего рабочего времени в этот день";
+
+            if (coach.Trainings.Any(t => t.TrainingStatusId != (int)TrainingStatusEnum.Cancelled &&
+                                    t.StartDate < endDate && t.EndDate > dto.StartDate))
+                return "У вас уже есть тренировка в это время";
+
+            if (client.TrainingReservations.Any(res => res.ReservationStatusId != (int)ReservationStatusEnum.Cancelled &&
+                                                res.Training.StartDate < endDate && res.Training.EndDate > dto.StartDate))
+                return "Клиент уже записан на тренировку в это время";
+
             return String.Empty;
         }
         public async Task<IEnumerable<TrainingDTO>> GetTrainingsForPeriodAsync(DateTime start, DateTime end)
@@ -69,18 +114,61 @@ namespace Application.Services
             if (!availableCoaches.Contains(coach))
                 throw new ArgumentException($"Тренер с Id {dto.CoachId} занят в данный временной промежуток");
 
+            await using var transaction = await _db.Database.BeginTransactionAsync();
+
+            try
+            {
+                var training = new Training
+                {
+                    StartDate = dto.StartDate.ToLocalTime(),
+                    EndDate = dto.StartDate.ToLocalTime().AddMinutes(type.Duration),
+                    Price = type.Price,
+                    CashbackPercentage = type.CashbackPercentage,
+                    CoachId = dto.CoachId,
+                    TrainingTypeId = dto.TrainingTypeId,
+                    TrainingStatusId = (int)TrainingStatusEnum.Pending,
+                };
+
+                await _trainingRep.AddAsync(training);
+                training = await _trainingRep.GetTrainingByIdAsync(training.Id);
+                await transaction.CommitAsync();
+
+                return new TrainingDTO(training);
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
+        public async Task<TrainingDTO> AddIndividualTrainingAsync(CreateIndividualTrainingDTO dto, string userId)
+        {
+            string checkResult = await CheckIndividualTrainingCreationPossibilityAsync(dto, userId);
+            if (checkResult != "")
+                throw new ArgumentException(checkResult);
+            var type = await _typeRep.GetTrainingTypeByIdAsync(dto.TrainingTypeId);
+            var coach = await _coachRep.GetCoachByUserIdAsync(userId);
             var training = new Training
             {
                 StartDate = dto.StartDate.ToLocalTime(),
                 EndDate = dto.StartDate.ToLocalTime().AddMinutes(type.Duration),
                 Price = type.Price,
                 CashbackPercentage = type.CashbackPercentage,
-                CoachId = dto.CoachId,
+                CoachId = coach.Id,
                 TrainingTypeId = dto.TrainingTypeId,
                 TrainingStatusId = (int)TrainingStatusEnum.Pending,
             };
 
             await _trainingRep.AddAsync(training);
+
+            var reservation = new TrainingReservation
+            {
+                ClientId = dto.ClientId,
+                TrainingId = training.Id,
+                ReservationStatusId = (int)ReservationStatusEnum.Pending,
+            };
+            await _reservationRep.AddAsync(reservation);
+
             training = await _trainingRep.GetTrainingByIdAsync(training.Id);
 
             return new TrainingDTO(training);

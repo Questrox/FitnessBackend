@@ -15,6 +15,10 @@ namespace Infrastructure.Repositories
         public TrainingTypeRepository(FitnessDb db) : base(db) { }
         public async Task<IEnumerable<TrainingType>> GetTrainingTypesAsync()
             => await _dbSet.ToListAsync();
+        public async Task<IEnumerable<TrainingType>> GetGroupTrainingTypesAsync()
+            => await _dbSet.Where(t => t.MaxClients > 1).ToListAsync();
+        public async Task<IEnumerable<TrainingType>> GetIndividualTrainingTypesAsync()
+            => await _dbSet.Where(t => t.MaxClients == 1).ToListAsync();
         public async Task<TrainingType?> GetTrainingTypeByIdAsync(int id)
             => await _dbSet.FirstOrDefaultAsync(t => t.Id == id);
     }

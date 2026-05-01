@@ -1,6 +1,7 @@
 ﻿using Application.Models.CreateDTOs;
 using Application.Models.DTOs;
 using Application.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -21,7 +22,19 @@ namespace WebAPI.Controllers
             var types = await _typeService.GetTrainingTypesAsync();
             return Ok(types);
         }
+        [Authorize(Roles = "Admin, Coach")]
+        [HttpGet("[action]")]
+        public async Task<ActionResult<IEnumerable<TrainingTypeDTO>>> GetTrainingTypesForCreation()
+        {
+            var userName = User.Identity?.IsAuthenticated == true ? User.Identity.Name : "Гость";
+            _logger.LogInformation($"Пользователь {userName} получает список всех типов тренировок для создания");
 
+            bool isAdmin = User.IsInRole("Admin");
+
+            var result = await _typeService.GetTrainingTypesForCreationAsync(isAdmin);
+
+            return Ok(result);
+        }
         [HttpGet("[action]/{id}")]
         public async Task<ActionResult<TrainingTypeDTO?>> GetTrainingTypeById(int id)
         {

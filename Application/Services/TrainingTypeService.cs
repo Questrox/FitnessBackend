@@ -20,6 +20,16 @@ namespace Application.Services
             return types.Select(t => new TrainingTypeDTO(t));
         }
 
+        public async Task<IEnumerable<TrainingTypeDTO>> GetTrainingTypesForCreationAsync(bool isAdmin)
+        {
+            IEnumerable<TrainingType> result;
+            if (isAdmin)
+                result = await _typeRep.GetGroupTrainingTypesAsync();
+            else
+                result = await _typeRep.GetIndividualTrainingTypesAsync();
+            return result.Select(t => new TrainingTypeDTO(t)).ToList();
+        }
+
         public async Task<TrainingTypeDTO?> GetTrainingTypeByIdAsync(int id)
         {
             var type = await _typeRep.GetTrainingTypeByIdAsync(id);
