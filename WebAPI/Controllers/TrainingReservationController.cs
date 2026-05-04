@@ -35,6 +35,15 @@ namespace WebAPI.Controllers
             if (reservation == null) return NotFound();
             return Ok(reservation);
         }
+        [HttpGet("[action]/{trainingId}")]
+        public async Task<ActionResult<IEnumerable<ReservationForTrainingDTO>>> GetReservationsByTrainingId(int trainingId)
+        {
+            var userName = User.Identity?.IsAuthenticated == true ? User.Identity.Name : "Гость";
+            _logger.LogInformation($"Пользователь {userName} получает записи на тренировку, имеющую Id {trainingId}");
+
+            var result = await _reservationService.GetReservationsByTrainingIdAsync(trainingId);
+            return Ok(result);
+        }
 
         [HttpPost("[action]")]
         [Authorize]
@@ -60,6 +69,17 @@ namespace WebAPI.Controllers
 
             var newReservation = await _reservationService.AddReservationAsync(reservation, isClient);
             return Ok(newReservation);
+        }
+        [HttpPut("[action]/{resId}")]
+        [Authorize(Roles = "Coach")]
+        public async Task<ActionResult<ReservationForTrainingDTO>> ConfirmTrainingAttendance(int resId)
+        {
+            var userName = User.Identity?.IsAuthenticated == true ? User.Identity.Name : "Гость";
+            _logger.LogInformation($"Пользователь {userName} подтверждает запись на тренировку с Id {resId}");
+
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var result = await _reservationService.ConfirmTrainingAttendanceAsync(resId, userId!);
+            return Ok(result);
         }
 
         [HttpPut("[action]/{id}")]

@@ -189,6 +189,57 @@ namespace Application.Services
             return new TrainingDTO(existing);
         }
 
+        public async Task<TrainingDTO> CompleteTrainingAsync(int id, string userId)
+        {
+            var existing = await _trainingRep.GetTrainingByIdAsync(id) ??
+                throw new KeyNotFoundException($"Тренировка с Id {id} не найдена");
+
+            //if (DateTime.Now < existing.StartDate)
+            //    throw new ArgumentException("Нельзя провести тренировку до ее начала");
+                        if (existing.TrainingStatusId == (int)TrainingStatusEnum.Completed)
+                throw new ArgumentException("Данная тренировка уже проведена");
+            if (existing.TrainingStatusId == (int)TrainingStatusEnum.Cancelled)
+                throw new ArgumentException("Данная тренировка отменена");
+            var coach = await _coachRep.GetCoachByUserIdAsync(userId);
+            if (coach == null)
+                throw new ArgumentException("Не найден тренер");
+            if (existing.CoachId != coach.Id)
+                throw new ArgumentException("Пометить тренировку как проведенную может только тренер, который ее проводит");
+
+            await using var transaction = await _db.Database.BeginTransactionAsync();
+            try
+            {
+                // меняем статус тренировки
+                existing.TrainingStatusId = (int)TrainingStatusEnum.Completed;
+                await _trainingRep.UpdateAsync(existing);
+
+                // отменяем записи
+                var reservationsToUpdate = existing.TrainingReservations
+                    .Where(r => r.ReservationStatusId == (int)ReservationStatusEnum.Pending)
+                    .ToList();
+
+                foreach (var reservation in reservationsToUpdate)
+                {
+                    reservation.ReservationStatusId = (int)ReservationStatusEnum.Cancelled;
+                }
+
+                if (reservationsToUpdate.Count > 0)
+                {
+                    await _db.SaveChangesAsync();
+                }
+
+                await transaction.CommitAsync();
+
+                var updated = await _trainingRep.GetTrainingByIdAsync(existing.Id);
+                return new TrainingDTO(updated);
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
+
         public async Task<TrainingDTO> CancelTrainingAsync(int id)
         {
             var existing = await _trainingRep.GetTrainingByIdAsync(id) ??
@@ -218,7 +269,7 @@ namespace Application.Services
                     reservation.ReservationStatusId = (int)ReservationStatusEnum.Cancelled;
                 }
 
-                if (reservationsToUpdate.Any())
+                if (reservationsToUpdate.Count > 0)
                 {
                     await _db.SaveChangesAsync();
                 }

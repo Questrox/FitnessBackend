@@ -11,13 +11,46 @@ using System.Threading.Tasks;
 
 namespace Application.Services
 {
-    public class TrainingReservationService(FitnessDb _db, ITrainingReservationRepository _reservationRep, 
+    public class TrainingReservationService(FitnessDb _db, ITrainingReservationRepository _reservationRep, ICoachRepository _coachRep, 
         TrainingService _trainingService, PaymentService _paymentService)
     {
         public async Task<IEnumerable<TrainingReservationDTO>> GetClientReservationsAsync(int clientId)
         {
             var reservations = await _reservationRep.GetClientReservationsAsync(clientId);
             return reservations.Select(r => new TrainingReservationDTO(r));
+        }
+        
+        public async Task<IEnumerable<ReservationForTrainingDTO>> GetReservationsByTrainingIdAsync(int trainingId)
+        {
+            var reservations = await _reservationRep.GetReservationsByTrainingIdAsync(trainingId);
+            return reservations.Select(r => new ReservationForTrainingDTO(r)).ToList();
+        }
+
+        public async Task<ReservationForTrainingDTO> ConfirmTrainingAttendanceAsync(int resId, string userId)
+        {
+            var res = await _reservationRep.GetReservationByIdAsync(resId);
+            var coach = await _coachRep.GetCoachByUserIdAsync(userId);
+            if (coach == null)
+                throw new ArgumentException("Не найден тренер");
+            if (res == null)
+                throw new ArgumentException($"Запись с Id {resId} не найдена");
+            if (res.Training.CoachId != coach.Id)
+                throw new ArgumentException("Подтвердить посещение может только ответственный за тренировку тренер");
+            if (res.ReservationStatusId == (int)ReservationStatusEnum.Visited || (res.ReservationStatusId == (int)ReservationStatusEnum.Cancelled))
+                throw new ArgumentException("Посещение уже подтверждено");
+            if (res.ReservationStatusId == (int)ReservationStatusEnum.Cancelled)
+                throw new ArgumentException("Запись отменена");
+
+            if (res.Training.TrainingStatusId == (int)TrainingStatusEnum.Cancelled)
+                throw new ArgumentException("Нельзя подтвердить посещение у отмененной тренировки");
+            if (res.Training.TrainingStatusId == (int)TrainingStatusEnum.Completed)
+                throw new ArgumentException("Тренировка уже проведена");
+
+            res.ReservationStatusId = (int)ReservationStatusEnum.Visited;
+            await _reservationRep.UpdateAsync(res);
+
+            var result = await _reservationRep.GetReservationByIdAsync(resId);
+            return new ReservationForTrainingDTO(result);
         }
 
         public async Task<TrainingReservationDTO?> GetReservationByIdAsync(int id)

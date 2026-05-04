@@ -11,5 +11,6 @@ namespace Domain.Interfaces
     {
         Task<IEnumerable<TrainingReservation>> GetClientReservationsAsync(int clientId);
         Task<TrainingReservation?> GetReservationByIdAsync(int id);
+        Task<IEnumerable<TrainingReservation>> GetReservationsByTrainingIdAsync(int trainingId);
     }
 }

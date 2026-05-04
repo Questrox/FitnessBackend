@@ -117,6 +117,17 @@ namespace WebAPI.Controllers
             var result = await _trainingService.CancelTrainingAsync(id);
             return Ok(result);
         }
+        [HttpPut("[action]/{id}")]
+        [Authorize(Roles = "Coach")]
+        public async Task<ActionResult<TrainingDTO>> CompleteTrainingAsync(int id)
+        {
+            var userName = User.Identity?.IsAuthenticated == true ? User.Identity.Name : "Гость";
+            _logger.LogInformation($"Пользователь {userName} помещает тренировку с id {id} как проведенную");
+
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var result = await _trainingService.CompleteTrainingAsync(id, userId);
+            return Ok(result);
+        }
 
         [HttpGet("[action]")]
         [Authorize(Roles = "Admin")]
