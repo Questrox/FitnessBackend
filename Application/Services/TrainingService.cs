@@ -87,9 +87,15 @@ namespace Application.Services
 
             return String.Empty;
         }
-        public async Task<IEnumerable<TrainingDTO>> GetTrainingsForPeriodAsync(DateTime start, DateTime end)
+        public async Task<IEnumerable<TrainingDTO>> GetTrainingsForPeriodAsync(DateTime start, DateTime end, string? userId)
         {
-            var trainings = await _trainingRep.GetTrainingsForPeriodAsync(start, end);
+            int? coachId = null;
+            if (userId != null) // Если вызывает тренер
+            {
+                var coach = await _coachRep.GetCoachByUserIdAsync(userId);
+                coachId = coach.Id;
+            }
+            var trainings = await _trainingRep.GetTrainingsForPeriodAsync(start, end, coachId);
             return trainings.Select(t => new TrainingDTO(t));
         }
 
@@ -240,7 +246,7 @@ namespace Application.Services
             }
         }
 
-        public async Task<TrainingDTO> CancelTrainingAsync(int id)
+        public async Task<TrainingDTO> CancelTrainingAsync(int id, string userId, bool isCoach)
         {
             var existing = await _trainingRep.GetTrainingByIdAsync(id) ??
                 throw new KeyNotFoundException($"Тренировка с Id {id} не найдена");
@@ -251,6 +257,13 @@ namespace Application.Services
                 throw new ArgumentException("Тренировка уже отменена");
             if (existing.StartDate <= DateTime.Now)
                 throw new ArgumentException("Тренировка уже началась, ее нельзя отменить");
+
+            if (isCoach)
+            {
+                var coach = await _coachRep.GetCoachByUserIdAsync(userId);
+                if (coach.Id != existing.CoachId)
+                    throw new ArgumentException("Тренировку может отменить только тот тренер, который ее проводит");
+            }    
 
             await using var transaction = await _db.Database.BeginTransactionAsync();
             try
@@ -274,20 +287,23 @@ namespace Application.Services
                     await _db.SaveChangesAsync();
                 }
 
-                // создаем уведомления для активных записей
-                List<CancellationNotification> notifications = new List<CancellationNotification>();
-                foreach (var res in reservationsToUpdate)
+                // создаем уведомления для активных записей, если это не индивидуальная тренировка
+                if (existing.TrainingType.MaxClients != 1)
                 {
-                    CancellationNotification notification = new CancellationNotification
+                    List<CancellationNotification> notifications = new List<CancellationNotification>();
+                    foreach (var res in reservationsToUpdate)
                     {
-                        TrainingId = id,
-                        ClientId = res.ClientId,
-                        IsNotified = false
-                    };
-                    notifications.Add(notification);
+                        CancellationNotification notification = new CancellationNotification
+                        {
+                            TrainingId = id,
+                            ClientId = res.ClientId,
+                            IsNotified = false
+                        };
+                        notifications.Add(notification);
+                    }
+                    if (notifications.Count > 0)
+                        await _notificationRepository.AddRangeAsync(notifications);
                 }
-                if (notifications.Count > 0)
-                    await _notificationRepository.AddRangeAsync(notifications);
 
                 await transaction.CommitAsync();
 

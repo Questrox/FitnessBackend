@@ -100,10 +100,13 @@ namespace Application.Services
             if (existing.ReservationStatusId != (int)ReservationStatusEnum.Pending)
                 throw new ArgumentException("Можно отменить только запись со статусом \"Ожидание\"");
 
-
-            existing.ReservationStatusId = (int)ReservationStatusEnum.Cancelled;
-
-            await _reservationRep.UpdateAsync(existing);
+            if (existing.Training.TrainingType.MaxClients == 1)
+                await _trainingService.CancelTrainingAsync(existing.Training.Id, "", false);
+            else
+            {
+                existing.ReservationStatusId = (int)ReservationStatusEnum.Cancelled;
+                await _reservationRep.UpdateAsync(existing);
+            }
             var updated = await _reservationRep.GetReservationByIdAsync(id);
             return new TrainingReservationDTO(updated);
         }

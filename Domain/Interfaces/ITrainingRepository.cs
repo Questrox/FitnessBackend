@@ -9,7 +9,7 @@ namespace Domain.Interfaces
 {
     public interface ITrainingRepository : IRepository<Training>
     {
-        Task<IEnumerable<Training>> GetTrainingsForPeriodAsync(DateTime start, DateTime end);
+        Task<IEnumerable<Training>> GetTrainingsForPeriodAsync(DateTime start, DateTime end, int? coachId);
         Task<Training?> GetTrainingByIdAsync(int id);
         Task<IEnumerable<Training>> GetTrainingsWithNotificationsAsync();
     }

@@ -58,7 +58,10 @@ namespace WebAPI.Controllers
             var userName = User.Identity?.IsAuthenticated == true ? User.Identity.Name : "Гость";
             _logger.LogInformation($"Пользователь {userName} получает тренировки за период {start.ToLocalTime().Date} - {end.ToLocalTime().Date}");
 
-            var trainings = await _trainingService.GetTrainingsForPeriodAsync(start.ToLocalTime().Date, end.ToLocalTime().Date);
+            string? userId = null;
+            if (User.IsInRole("Coach"))
+                userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var trainings = await _trainingService.GetTrainingsForPeriodAsync(start.ToLocalTime().Date, end.ToLocalTime().Date, userId);
             return Ok(trainings);
         }
 
@@ -108,13 +111,15 @@ namespace WebAPI.Controllers
         }
 
         [HttpPut("[action]/{id}")]
-        [Authorize]
+        [Authorize(Roles = "Admin, Coach")]
         public async Task<ActionResult<TrainingDTO>> CancelTraining(int id)
         {
             var userName = User.Identity?.IsAuthenticated == true ? User.Identity.Name : "Гость";
             _logger.LogInformation($"Пользователь {userName} отменяет тренировку с id {id}");
 
-            var result = await _trainingService.CancelTrainingAsync(id);
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            bool isCoach = User.IsInRole("Coach");
+            var result = await _trainingService.CancelTrainingAsync(id, userId, isCoach);
             return Ok(result);
         }
         [HttpPut("[action]/{id}")]

@@ -84,7 +84,8 @@ namespace Application.Services
             {
                 Token = token,
                 UserName = user.UserName,
-                UserRole = roles.FirstOrDefault()
+                UserRole = roles.FirstOrDefault(),
+                UserId = user.Id
             };
         }
 
