@@ -22,6 +22,11 @@ namespace Infrastructure.Repositories
             return await _dbSet.Include(m => m.MembershipType).Include(m => m.Payment)
                 .Where(m => m.ClientId == clientId).ToListAsync();
         }
+        public async Task<IEnumerable<Membership>> GetOverlappingMembershipsAsync(int clientId, DateTime startDate, DateTime endDate)
+        {
+            return await _dbSet.Include(m => m.MembershipType).Include(m => m.Payment)
+                .Where(m => m.ClientId == clientId && m.StartDate <= endDate && m.EndDate >= startDate).ToListAsync();
+        }
         public async Task<Membership?> GetMembershipByIdAsync(int id)
         {
             return await _dbSet.Include(m => m.MembershipType).Include(m => m.Payment).FirstOrDefaultAsync(m => m.Id == id);

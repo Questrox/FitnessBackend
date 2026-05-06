@@ -1,6 +1,7 @@
 ﻿using Application.Models.CreateDTOs;
 using Application.Models.DTOs;
 using Application.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -40,6 +41,16 @@ namespace WebAPI.Controllers
             _logger.LogInformation($"Пользователь {userName} получает абонементы клиента с id {clientId}");
 
             var memberships = await _membershipService.GetClientMembershipsAsync(clientId);
+            return Ok(memberships);
+        }
+        [HttpGet("[action]")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<IEnumerable<MembershipDTO>>> CheckMembershipOverlap(int clientId, int membershipTypeId, DateTime startDate)
+        {
+            var userName = User.Identity?.IsAuthenticated == true ? User.Identity.Name : "Гость";
+            _logger.LogInformation($"Пользователь {userName} проверяет пересечения абонементов клиента {clientId}");
+
+            var memberships = await _membershipService.GetMembershipOverlapAsync(clientId, membershipTypeId, startDate);
             return Ok(memberships);
         }
 

@@ -11,6 +11,7 @@ namespace Domain.Interfaces
     {
         Task<IEnumerable<Membership>> GetMembershipsAsync();
         Task<IEnumerable<Membership>> GetClientMembershipsAsync(int clientId);
+        Task<IEnumerable<Membership>> GetOverlappingMembershipsAsync(int clientId, DateTime startDate, DateTime endDate);
         Task<Membership?> GetMembershipByIdAsync(int id);
     }
 }

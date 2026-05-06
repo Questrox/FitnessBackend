@@ -88,6 +88,16 @@ namespace Application.Services
                 UserId = user.Id
             };
         }
+        
+        public async Task<UserDTO> GetCurrentUserAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (user == null)
+                throw new KeyNotFoundException("Пользователь не найден");
+
+            return new UserDTO(user);
+        }
 
         public async Task LogoutAsync()
         {

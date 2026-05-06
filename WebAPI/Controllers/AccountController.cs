@@ -55,9 +55,21 @@ namespace WebAPI.Controllers
 
             return Ok(result);
         }
-
+        [HttpGet("[action]")]
         [Authorize]
+        public async Task<ActionResult<UserDTO>> GetCurrentUser()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (userId == null)
+                throw new UnauthorizedAccessException("Пользователь не авторизован");
+
+            var user = await _authService.GetCurrentUserAsync(userId);
+            return Ok(user);
+        }
+
         [HttpPost("logout")]
+        [Authorize]
         public async Task<IActionResult> Logout()
         {
             _logger.LogInformation($"Пользователь {User.Identity?.Name} выполняет выход");

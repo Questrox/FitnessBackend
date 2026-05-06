@@ -26,6 +26,16 @@ namespace Application.Services
             return memberships.Select(m => new MembershipDTO(m));
         }
 
+        public async Task<IEnumerable<MembershipDTO>> GetMembershipOverlapAsync(int clientId, int membershipTypeId, DateTime startDate)
+        {
+            var membershipType = await _membershipTypeRep.GetMembershipTypeById(membershipTypeId);
+            if (membershipType == null)
+                throw new ArgumentException($"Не найден тип абонемента с Id {membershipTypeId}");
+            DateTime endDate = startDate.AddMonths(membershipType.Duration);
+            var overlaps = await _membershipRep.GetOverlappingMembershipsAsync(clientId, startDate, endDate);
+            return overlaps.Select(m => new MembershipDTO(m));
+        }
+
         public async Task<MembershipDTO?> GetMembershipByIdAsync(int id)
         {
             var membership = await _membershipRep.GetMembershipByIdAsync(id);
