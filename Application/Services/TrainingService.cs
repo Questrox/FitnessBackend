@@ -15,7 +15,8 @@ namespace Application.Services
         IClientRepository _clientRep, ITrainingReservationRepository _reservationRep,
         INotificationRepository _notificationRepository, FitnessDb _db)
     {
-        public async Task<string> CheckReservationPossibilityAsync(int trainingId, int? clientId, bool isClient) // ДОБАВИТЬ ПРОВЕРКУ НА АБОНЕМЕНТ
+        // ДОБАВИТЬ ПРОВЕРКУ НА АБОНЕМЕНТ И НА ТО, ЗАПИСАН ЛИ КЛИЕНТ НА ТРЕНИРОВКУ В ЭТО ВРЕМЯ
+        public async Task<string> CheckReservationPossibilityAsync(int trainingId, int? clientId, bool isClient)
         {
             if (clientId == null)
                 throw new ArgumentException("ClientId = null");
@@ -34,9 +35,9 @@ namespace Application.Services
             if (training.TrainingReservations.Any(tr => tr.ClientId == clientId && tr.ReservationStatusId != (int)ReservationStatusEnum.Cancelled))
             {
                 if (isClient)
-                    return "Вы уже записаны";
+                    return "Вы уже записаны на эту тренировку";
                 else
-                    return "Клиент уже записан";
+                    return "Клиент уже записан на эту тренировку";
             }
             if (training.TrainingReservations
                 .Count(tr => tr.ReservationStatusId != (int)ReservationStatusEnum.Cancelled) >= trainingType.MaxClients)

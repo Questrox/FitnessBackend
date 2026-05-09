@@ -12,6 +12,7 @@ using Infrastructure.Data;
 using Application.Services;
 using Infrastructure.Repositories;
 using WebAPI.Middleware;
+using Infrastructure.BackgroundServices;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -93,6 +94,14 @@ builder.Services.AddScoped<TrainingTypeService>();
 builder.Services.AddScoped<AuthService>();
 
 #endregion
+
+builder.Logging.AddSimpleConsole(options =>
+{
+    options.SingleLine = false;
+    options.TimestampFormat = "[dd.MM.yyyy HH:mm:ss] ";
+});
+
+builder.Services.AddHostedService<NotificationCleanerService>();
 
 builder.Services.AddControllers(); //Регистрирует контроллеры: приложение будет обрабатывать http-запросы через контроллеры
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

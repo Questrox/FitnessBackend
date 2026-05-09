@@ -53,6 +53,12 @@ namespace Application.Services
                     .OrderByDescending(tr => tr.Training?.StartDate)
                     .ToList();
             }
+            if (clientDto.Memberships != null)
+            {
+                clientDto.Memberships = clientDto.Memberships
+                    .OrderByDescending(m => m.StartDate)
+                    .ToList();
+            }
             return clientDto;
         }
         public async Task<ClientDTO?> GetClientByUserIdAsync(string userId)
@@ -66,6 +72,12 @@ namespace Application.Services
             {
                 clientDto.TrainingReservations = clientDto.TrainingReservations
                     .OrderByDescending(tr => tr.Training?.StartDate)
+                    .ToList();
+            }
+            if (clientDto.Memberships != null)
+            {
+                clientDto.Memberships = clientDto.Memberships
+                    .OrderByDescending(m => m.StartDate)
                     .ToList();
             }
             return clientDto;

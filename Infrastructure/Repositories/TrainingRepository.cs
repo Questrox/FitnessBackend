@@ -33,6 +33,7 @@ namespace Infrastructure.Repositories
                 .Include(t => t.CancellationNotifications).ThenInclude(n => n.Client).ThenInclude(c => c.User)
                 .Include(t => t.CancellationNotifications).ThenInclude(c => c.Admin)
                 .Where(t => t.TrainingStatusId == (int)TrainingStatusEnum.Cancelled)
+                .OrderBy(t => t.StartDate)
                 .ToListAsync();
         }
     }
