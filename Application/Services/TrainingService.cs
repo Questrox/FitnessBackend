@@ -196,6 +196,32 @@ namespace Application.Services
             return new TrainingDTO(existing);
         }
 
+        public async Task<TrainingDTO> UpdateTrainingCoachAsync(int trainingId, int coachId)
+        {
+            var existing = await _trainingRep.GetTrainingByIdAsync(trainingId) ??
+                throw new KeyNotFoundException($"Тренировка с Id {trainingId} не найдена");
+            if (existing.TrainingStatusId == (int)TrainingStatusEnum.Completed)
+                throw new ArgumentException("Нельзя изменить тренера проведенной тренировки");
+            if (existing.TrainingStatusId == (int)TrainingStatusEnum.Cancelled)
+                throw new ArgumentException("Нельзя изменить тренера отмененной тренировки");
+
+            var coach = await _coachRep.GetCoachByIdAsync(coachId) ??
+                throw new KeyNotFoundException($"Тренер с Id {coachId} не найден");
+
+            var availableCoaches = await _coachRep.GetAvailableCoachesAsync(existing.StartDate, existing.EndDate);
+
+            if (!availableCoaches.Any(c => c.Id == coachId))
+                throw new ArgumentException("Данный тренер не свободен в это время");
+
+            existing.CoachId = coach.Id;
+
+            await _trainingRep.UpdateAsync(existing);
+
+            existing = await _trainingRep.GetTrainingByIdAsync(trainingId);
+
+            return new TrainingDTO(existing);
+        }
+
         public async Task<TrainingDTO> CompleteTrainingAsync(int id, string userId)
         {
             var existing = await _trainingRep.GetTrainingByIdAsync(id) ??
@@ -321,7 +347,7 @@ namespace Application.Services
         public async Task<IEnumerable<TrainingWithNotificationsDTO>> GetTrainingsWithNotificationsAsync()
         {
             var trainings = await _trainingRep.GetTrainingsWithNotificationsAsync();
-            return trainings.Select(t => new TrainingWithNotificationsDTO(t)).ToList();
+            return trainings.Select(t => new TrainingWithNotificationsDTO(t)).Where(t => t.NotNotifiedCount > 0).ToList();
         }
 
         public async Task DeleteTraining(int id)

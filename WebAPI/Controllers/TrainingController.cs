@@ -109,6 +109,15 @@ namespace WebAPI.Controllers
             var updatedTraining = await _trainingService.UpdateTrainingAsync(training);
             return Ok(updatedTraining);
         }
+        [HttpPut("[action]")]
+        public async Task<ActionResult<TrainingDTO>> UpdateTrainingCoach(int trainingId, int coachId)
+        {
+            var userName = User.Identity?.IsAuthenticated == true ? User.Identity.Name : "Гость";
+            _logger.LogInformation($"Пользователь {userName} меняет тренера у тренировки с id {trainingId}");
+
+            var updatedTraining = await _trainingService.UpdateTrainingCoachAsync(trainingId, coachId);
+            return Ok(updatedTraining);
+        }
 
         [HttpPut("[action]/{id}")]
         [Authorize(Roles = "Admin, Coach")]

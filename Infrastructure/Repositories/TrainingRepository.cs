@@ -18,7 +18,7 @@ namespace Infrastructure.Repositories
         public async Task<IEnumerable<Training>> GetTrainingsForPeriodAsync(DateTime start, DateTime end, int? coachId)
             => await _dbSet.Include(t => t.TrainingType).Include(t => t.Coach).ThenInclude(c => c.User).Include(t => t.TrainingStatus)
             .Include(t => t.TrainingReservations).ThenInclude(tr => tr.Client).ThenInclude(c => c.User)
-            .Where(t => t.StartDate.Date >= start && t.EndDate.Date <= end && t.TrainingStatusId != (int)TrainingStatusEnum.Cancelled &&
+            .Where(t => t.StartDate.Date >= start && t.EndDate.Date <= end &&
             (t.TrainingType.MaxClients > 1 || coachId != null && t.CoachId == coachId)
             ).ToListAsync();
         public async Task<Training?> GetTrainingByIdAsync(int id)
