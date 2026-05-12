@@ -19,7 +19,8 @@ namespace Infrastructure.Repositories
         }
         public async Task<Coach?> GetCoachByUserIdAsync(string userId)
         {
-            return await _dbSet.Include(c => c.CoachSchedules).Include(c => c.User).Include(c => c.Trainings).FirstOrDefaultAsync(c => c.UserId == userId);
+            return await _dbSet.Include(c => c.CoachSchedules).Include(c => c.User).Include(c => c.Trainings).ThenInclude(t => t.TrainingType)
+                .FirstOrDefaultAsync(c => c.UserId == userId);
         }
         public async Task<IEnumerable<Coach>> GetAvailableCoachesAsync(DateTime start, DateTime end)
         {
@@ -44,7 +45,8 @@ namespace Infrastructure.Repositories
         }
         public async Task<Coach?> GetCoachByIdAsync(int id)
         {
-            return await _dbSet.Include(c => c.CoachSchedules).Include(c => c.User).Include(c => c.Trainings).FirstOrDefaultAsync(c => c.Id == id);
+            return await _dbSet.Include(c => c.CoachSchedules).Include(c => c.User).Include(c => c.Trainings).ThenInclude(t => t.TrainingType)
+                .FirstOrDefaultAsync(c => c.Id == id);
         }
     }
 }

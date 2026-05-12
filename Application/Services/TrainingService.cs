@@ -3,6 +3,7 @@ using Application.Models.DTOs;
 using Domain.Entities;
 using Domain.Interfaces;
 using Infrastructure.Data;
+using Infrastructure.Migrations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +16,6 @@ namespace Application.Services
         IClientRepository _clientRep, ITrainingReservationRepository _reservationRep,
         INotificationRepository _notificationRepository, FitnessDb _db)
     {
-        // ДОБАВИТЬ ПРОВЕРКУ НА АБОНЕМЕНТ И НА ТО, ЗАПИСАН ЛИ КЛИЕНТ НА ТРЕНИРОВКУ В ЭТО ВРЕМЯ
         public async Task<string> CheckReservationPossibilityAsync(int trainingId, int? clientId, bool isClient)
         {
             if (clientId == null)
@@ -32,6 +32,11 @@ namespace Application.Services
                 return "Нельзя записаться на тренировку после ее начала";
 
             var trainingType = await _typeRep.GetTrainingTypeByIdAsync(training.TrainingTypeId);
+
+            if (training.TrainingReservations
+                .Count(tr => tr.ReservationStatusId != (int)ReservationStatusEnum.Cancelled) >= trainingType.MaxClients)
+                return "Нет мест";
+
             if (training.TrainingReservations.Any(tr => tr.ClientId == clientId && tr.ReservationStatusId != (int)ReservationStatusEnum.Cancelled))
             {
                 if (isClient)
@@ -39,13 +44,39 @@ namespace Application.Services
                 else
                     return "Клиент уже записан на эту тренировку";
             }
-            if (training.TrainingReservations
-                .Count(tr => tr.ReservationStatusId != (int)ReservationStatusEnum.Cancelled) >= trainingType.MaxClients)
-                return "Нет мест";
+            var client = await _clientRep.GetClientByIdAsync((int)clientId);
+            if (client == null)
+                throw new ArgumentException($"Не найден клиент с Id {clientId}");
+            // Проверка на наличие другой записи на тренировку в это время
+            var overlappingReservation = client.TrainingReservations.FirstOrDefault(res =>
+                res.ReservationStatusId != (int)ReservationStatusEnum.Cancelled &&
+                res.Training.TrainingStatusId != (int)TrainingStatusEnum.Cancelled &&
+                res.Training.StartDate < training.EndDate &&
+                res.Training.EndDate > training.StartDate);
+            if (overlappingReservation != null)
+            {
+                if (isClient)
+                    return $"Вы уже записаны на тренировку в это время ({overlappingReservation.Training.TrainingType.Name} " +
+                           $"{overlappingReservation.Training.StartDate.Date:dd.MM.yyyy} " +
+                           $"с {overlappingReservation.Training.StartDate:HH:mm} " +
+                           $"по {overlappingReservation.Training.EndDate:HH:mm})";
+                else
+                    return $"Клиент уже записан на тренировку в это время ({overlappingReservation.Training.TrainingType.Name} " +
+                           $"{overlappingReservation.Training.StartDate.Date:dd.MM.yyyy} " +
+                           $"с {overlappingReservation.Training.StartDate:HH:mm} " +
+                           $"по {overlappingReservation.Training.EndDate:HH:mm})";
+            }
+            // Проверка на наличие абонемента
+            if (!client.Memberships.Any(m => m.StartDate <= training.EndDate.Date && m.EndDate >= training.StartDate.Date))
+            {
+                if (isClient)
+                    return "У вас нет абонемента на этот период";
+                else
+                    return "У клиента нет абонемента на этот период";
+            }
             return String.Empty;
         }
 
-        // ТОЖЕ ДОБАВИТЬ ПРОВЕРКУ НА АБОНЕМЕНТ
         public async Task<string> CheckIndividualTrainingCreationPossibilityAsync(CreateIndividualTrainingDTO dto, string userId) 
         {
             var trainingType = await _typeRep.GetTrainingTypeByIdAsync(dto.TrainingTypeId);
@@ -78,13 +109,36 @@ namespace Application.Services
             if (!foundSchedule)
                 return "Данная тренировка выходит за границы вашего рабочего времени в этот день";
 
-            if (coach.Trainings.Any(t => t.TrainingStatusId != (int)TrainingStatusEnum.Cancelled &&
-                                    t.StartDate < endDate && t.EndDate > dto.StartDate))
-                return "У вас уже есть тренировка в это время";
+            var overlappingTraining = coach.Trainings.FirstOrDefault(t => t.TrainingStatusId != (int)TrainingStatusEnum.Cancelled &&
+                                                                     t.StartDate < endDate && t.EndDate > dto.StartDate);
 
-            if (client.TrainingReservations.Any(res => res.ReservationStatusId != (int)ReservationStatusEnum.Cancelled &&
-                                                res.Training.StartDate < endDate && res.Training.EndDate > dto.StartDate))
-                return "Клиент уже записан на тренировку в это время";
+            if (overlappingTraining != null)
+            {
+                return $"У вас уже есть тренировка в это время ({overlappingTraining.TrainingType.Name} " +
+                       $"{overlappingTraining.StartDate.Date:dd.MM.yyyy} " +
+                       $"с {overlappingTraining.StartDate:HH:mm} " +
+                       $"по {overlappingTraining.EndDate:HH:mm})";
+            }
+
+            var overlappingReservation = client.TrainingReservations.FirstOrDefault(res =>
+                res.ReservationStatusId != (int)ReservationStatusEnum.Cancelled &&
+                res.Training.TrainingStatusId != (int)TrainingStatusEnum.Cancelled &&
+                res.Training.StartDate < endDate &&
+                res.Training.EndDate > dto.StartDate);
+
+            if (overlappingReservation != null)
+            {
+                return $"Клиент уже записан на тренировку в это время ({overlappingReservation.Training.TrainingType.Name} " +
+                       $"{overlappingReservation.Training.StartDate.Date:dd.MM.yyyy} " +
+                       $"с {overlappingReservation.Training.StartDate:HH:mm} " +
+                       $"по {overlappingReservation.Training.EndDate:HH:mm})";
+            }
+
+            // Проверка на наличие абонемента
+            if (!client.Memberships.Any(m => m.StartDate <= endDate.Date && m.EndDate >= dto.StartDate.Date))
+            {
+                return "У клиента нет абонемента на этот период";
+            }
 
             return String.Empty;
         }
