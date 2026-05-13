@@ -300,14 +300,14 @@ namespace Application.Services
                 existing.TrainingStatusId = (int)TrainingStatusEnum.Completed;
                 await _trainingRep.UpdateAsync(existing);
 
-                // отменяем записи
+                // отмечаем неявку клиентов
                 var reservationsToUpdate = existing.TrainingReservations
                     .Where(r => r.ReservationStatusId == (int)ReservationStatusEnum.Pending)
                     .ToList();
 
                 foreach (var reservation in reservationsToUpdate)
                 {
-                    reservation.ReservationStatusId = (int)ReservationStatusEnum.Cancelled;
+                    reservation.ReservationStatusId = (int)ReservationStatusEnum.NotVisited;
                 }
 
                 if (reservationsToUpdate.Count > 0)
@@ -353,14 +353,14 @@ namespace Application.Services
                 existing.TrainingStatusId = (int)TrainingStatusEnum.Cancelled;
                 await _trainingRep.UpdateAsync(existing);
 
-                // отменяем записи
+                // изменяем статусы записей
                 var reservationsToUpdate = existing.TrainingReservations
                     .Where(r => r.ReservationStatusId != (int)ReservationStatusEnum.Cancelled)
                     .ToList();
 
                 foreach (var reservation in reservationsToUpdate)
                 {
-                    reservation.ReservationStatusId = (int)ReservationStatusEnum.Cancelled;
+                    reservation.ReservationStatusId = (int)ReservationStatusEnum.TrainingCancelled;
                 }
 
                 if (reservationsToUpdate.Count > 0)

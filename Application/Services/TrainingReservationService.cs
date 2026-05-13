@@ -36,7 +36,7 @@ namespace Application.Services
                 throw new ArgumentException($"Запись с Id {resId} не найдена");
             if (res.Training.CoachId != coach.Id)
                 throw new ArgumentException("Подтвердить посещение может только ответственный за тренировку тренер");
-            if (res.ReservationStatusId == (int)ReservationStatusEnum.Visited || (res.ReservationStatusId == (int)ReservationStatusEnum.Cancelled))
+            if (res.ReservationStatusId == (int)ReservationStatusEnum.Visited)
                 throw new ArgumentException("Посещение уже подтверждено");
             if (res.ReservationStatusId == (int)ReservationStatusEnum.Cancelled)
                 throw new ArgumentException("Запись отменена");

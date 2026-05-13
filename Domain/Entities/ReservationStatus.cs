@@ -12,7 +12,9 @@ namespace Domain.Entities
         Pending = 1,
         Visited = 2,
         Paid = 3,
-        Cancelled = 4
+        Cancelled = 4,
+        NotVisited = 5,
+        TrainingCancelled = 6
     }
     public class ReservationStatus
     {

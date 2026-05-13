@@ -188,11 +188,13 @@ namespace Infrastructure.Data
                 new ReservationStatus { Id = 1, Name = "Ожидание" },
                 new ReservationStatus { Id = 2, Name = "Посещена" },
                 new ReservationStatus { Id = 3, Name = "Оплачена" },
-                new ReservationStatus { Id = 4, Name = "Отменена" }
+                new ReservationStatus { Id = 4, Name = "Отменена" },
+                new ReservationStatus { Id = 5, Name = "Не посещена" },
+                new ReservationStatus { Id = 6, Name = "Тренировка отменена" }
             );
 
             modelBuilder.Entity<TrainingStatus>().HasData(
-                new TrainingStatus { Id = 1, Name = "Ожидание" },
+                new TrainingStatus { Id = 1, Name = "Запланирована" },
                 new TrainingStatus { Id = 2, Name = "Проведена" },
                 new TrainingStatus { Id = 3, Name = "Отменена" }
             );
