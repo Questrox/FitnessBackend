@@ -61,6 +61,7 @@ namespace WebAPI.Controllers
             _logger.LogInformation($"Пользователь {userName} создаёт абонемент");
 
             membership.AdminId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            membership.StartDate = membership.StartDate.ToLocalTime();
             var newMembership = await _membershipService.AddMembershipAsync(membership);
             return Ok(newMembership);
         }

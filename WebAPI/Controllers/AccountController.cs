@@ -34,7 +34,7 @@ namespace WebAPI.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            string? success = await _authService.RegisterAsync(model);
+            string? success = await _authService.RegisterAsync(model, "User");
 
             if (success == null)
                 return BadRequest("Ошибка регистрации");

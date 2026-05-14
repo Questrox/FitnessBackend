@@ -33,10 +33,6 @@ namespace Application.Services
 
             var trainingType = await _typeRep.GetTrainingTypeByIdAsync(training.TrainingTypeId);
 
-            if (training.TrainingReservations
-                .Count(tr => tr.ReservationStatusId != (int)ReservationStatusEnum.Cancelled) >= trainingType.MaxClients)
-                return "Нет мест";
-
             if (training.TrainingReservations.Any(tr => tr.ClientId == clientId && tr.ReservationStatusId != (int)ReservationStatusEnum.Cancelled))
             {
                 if (isClient)
@@ -44,6 +40,11 @@ namespace Application.Services
                 else
                     return "Клиент уже записан на эту тренировку";
             }
+
+            if (training.TrainingReservations
+                .Count(tr => tr.ReservationStatusId != (int)ReservationStatusEnum.Cancelled) >= trainingType.MaxClients)
+                return "Нет мест";
+
             var client = await _clientRep.GetClientByIdAsync((int)clientId);
             if (client == null)
                 throw new ArgumentException($"Не найден клиент с Id {clientId}");
