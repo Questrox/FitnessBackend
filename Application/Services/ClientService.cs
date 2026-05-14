@@ -97,7 +97,7 @@ namespace Application.Services
                     UserName = userName,
                     Password = password
                 };
-                var result = await _authService.RegisterAsync(model);
+                var result = await _authService.RegisterAsync(model, "User");
                 if (result == null)
                     throw new ArgumentException("Не удалось создать пользователя");
                 var newClient = new Client

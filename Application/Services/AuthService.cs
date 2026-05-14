@@ -31,7 +31,7 @@ namespace Application.Services
             _logger = logger;
         }
 
-        public async Task<string?> RegisterAsync(RegisterModel model)
+        public async Task<string?> RegisterAsync(RegisterModel model, string userRole)
         {
             var user = new User
             {
@@ -51,7 +51,7 @@ namespace Application.Services
                 return null;
             }
 
-            await _userManager.AddToRoleAsync(user, "User");
+            await _userManager.AddToRoleAsync(user, userRole);
 
             _logger.LogInformation($"Пользователь {model.UserName} успешно зарегистрирован");
             return user.Id;

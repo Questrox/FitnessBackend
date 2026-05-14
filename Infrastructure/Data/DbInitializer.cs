@@ -322,5 +322,68 @@ namespace Infrastructure.Data
 
             #endregion
         }
+        public static async Task CopyWeekTrainings(FitnessDb db)
+        {
+            DateTime sourceWeekStart = new DateTime(2026, 5, 18);
+            DateTime sourceWeekEnd = new DateTime(2026, 5, 24, 23, 59, 59);
+
+            DateTime targetWeekStart = sourceWeekStart.AddDays(7);
+
+            // Получаем тренировки исходной недели
+            var trainings = await db.Trainings
+                .Where(t => t.StartDate >= sourceWeekStart &&
+                            t.StartDate <= sourceWeekEnd &&
+                            !t.IsDeleted)
+                .ToListAsync();
+
+            // Random для перемешивания
+            Random random = new Random();
+
+            // Группируем по дням недели
+            var groupedByDay = trainings
+                .GroupBy(t => t.StartDate.DayOfWeek);
+
+            List<Training> newTrainings = new();
+
+            foreach (var dayGroup in groupedByDay)
+            {
+                var dayTrainings = dayGroup.ToList();
+
+                // Перемешиваем тренировки этого дня
+                var shuffled = dayTrainings
+                    .OrderBy(x => random.Next())
+                    .ToList();
+
+                for (int i = 0; i < dayTrainings.Count; i++)
+                {
+                    var original = dayTrainings[i];
+                    var shuffledTraining = shuffled[i];
+
+                    // Смещение ровно на неделю
+                    TimeSpan shift = TimeSpan.FromDays(7);
+
+                    var newTraining = new Training
+                    {
+                        StartDate = original.StartDate.Add(shift),
+                        EndDate = original.EndDate.Add(shift),
+
+                        // Берем данные из перемешанной тренировки
+                        CoachId = shuffledTraining.CoachId,
+                        TrainingTypeId = shuffledTraining.TrainingTypeId,
+                        Price = shuffledTraining.Price,
+                        CashbackPercentage = shuffledTraining.CashbackPercentage,
+
+                        TrainingStatusId = (int)TrainingStatusEnum.Pending,
+
+                        IsDeleted = false
+                    };
+
+                    newTrainings.Add(newTraining);
+                }
+            }
+
+            await db.Trainings.AddRangeAsync(newTrainings);
+            await db.SaveChangesAsync();
+        }
     }
 }

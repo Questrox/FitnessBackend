@@ -57,7 +57,7 @@ namespace Application.Services
                     UserName = userName,
                     Password = password
                 };
-                var result = await _authService.RegisterAsync(model);
+                var result = await _authService.RegisterAsync(model, "Coach");
                 if (result == null)
                     throw new ArgumentException("Не удалось создать пользователя");
 
