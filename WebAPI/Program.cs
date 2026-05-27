@@ -12,7 +12,6 @@ using Infrastructure.Data;
 using Application.Services;
 using Infrastructure.Repositories;
 using WebAPI.Middleware;
-using Infrastructure.BackgroundServices;
 using Infrastructure.UnitOfWork;
 
 

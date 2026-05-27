@@ -21,5 +21,8 @@ namespace Infrastructure.Repositories
         public async Task<CancellationNotification?> GetNotificationByIdAsync(int id)
             => await _dbSet.Include(n => n.Client).ThenInclude(c => c.User).Include(n => n.Admin)
             .Include(n => n.Training).ThenInclude(t => t.TrainingType).FirstOrDefaultAsync(n => n.Id == id);
+        public async Task<IEnumerable<CancellationNotification>> GetExpiredNotificationsAsync(CancellationToken cancellationToken)
+            => await _dbSet.Include(n => n.Training).Where(n => !n.IsNotified && n.Training.EndDate <= DateTime.Now)
+            .ToListAsync(cancellationToken);
     }
 }

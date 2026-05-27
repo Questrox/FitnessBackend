@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Application.Services
 {
-    public class NotificationService(INotificationRepository _notificationRep)
+    public class NotificationService(INotificationRepository _notificationRep, IUnitOfWork _uow)
     {
         public async Task<IEnumerable<CancellationNotificationDTO>> GetNotificationsAsync()
         {
@@ -73,6 +73,23 @@ namespace Application.Services
 
             var updated = await _notificationRep.GetNotificationByIdAsync(id);
             return new CancellationNotificationDTO(updated);
+        }
+
+        public async Task<int> MarkExpiredNotificationsAsync(CancellationToken cancellationToken)
+        {
+            var notifications = await _notificationRep.GetExpiredNotificationsAsync(cancellationToken);
+
+            foreach (var notification in notifications)
+            {
+                notification.IsNotified = true;
+            }
+
+            if (notifications.Count() > 0)
+            {
+                await _uow.SaveChangesAsync(cancellationToken);
+            }
+
+            return notifications.Count();
         }
 
         public async Task DeleteNotification(int id)

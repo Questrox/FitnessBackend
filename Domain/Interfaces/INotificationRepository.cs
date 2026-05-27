@@ -12,5 +12,6 @@ namespace Domain.Interfaces
         Task<IEnumerable<CancellationNotification>> GetNotificationsAsync();
         Task<IEnumerable<CancellationNotification>> GetActiveNotificationsAsync();
         Task<CancellationNotification?> GetNotificationByIdAsync(int id);
+        Task<IEnumerable<CancellationNotification>> GetExpiredNotificationsAsync(CancellationToken cancellationToken);
     }
 }
