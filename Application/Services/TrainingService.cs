@@ -2,8 +2,6 @@
 using Application.Models.DTOs;
 using Domain.Entities;
 using Domain.Interfaces;
-using Infrastructure.Data;
-using Infrastructure.Migrations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +12,7 @@ namespace Application.Services
 {
     public class TrainingService(ITrainingRepository _trainingRep, ITrainingTypeRepository _typeRep, ICoachRepository _coachRep, 
         IClientRepository _clientRep, ITrainingReservationRepository _reservationRep,
-        INotificationRepository _notificationRepository, FitnessDb _db)
+        INotificationRepository _notificationRepository, IUnitOfWork _uow)
     {
         public async Task<string> CheckReservationPossibilityAsync(int trainingId, int? clientId, bool isClient)
         {
@@ -176,7 +174,7 @@ namespace Application.Services
             if (!availableCoaches.Contains(coach))
                 throw new ArgumentException($"Тренер с Id {dto.CoachId} занят в данный временной промежуток");
 
-            await using var transaction = await _db.Database.BeginTransactionAsync();
+            await using var transaction = await _uow.BeginTransactionAsync();
 
             try
             {
@@ -294,7 +292,7 @@ namespace Application.Services
             if (existing.CoachId != coach.Id)
                 throw new ArgumentException("Пометить тренировку как проведенную может только тренер, который ее проводит");
 
-            await using var transaction = await _db.Database.BeginTransactionAsync();
+            await using var transaction = await _uow.BeginTransactionAsync();
             try
             {
                 // меняем статус тренировки
@@ -313,7 +311,7 @@ namespace Application.Services
 
                 if (reservationsToUpdate.Count > 0)
                 {
-                    await _db.SaveChangesAsync();
+                    await _uow.SaveChangesAsync();
                 }
 
                 await transaction.CommitAsync();
@@ -347,7 +345,7 @@ namespace Application.Services
                     throw new ArgumentException("Тренировку может отменить только тот тренер, который ее проводит");
             }    
 
-            await using var transaction = await _db.Database.BeginTransactionAsync();
+            await using var transaction = await _uow.BeginTransactionAsync();
             try
             {
                 // меняем статус тренировки
@@ -366,7 +364,7 @@ namespace Application.Services
 
                 if (reservationsToUpdate.Count > 0)
                 {
-                    await _db.SaveChangesAsync();
+                    await _uow.SaveChangesAsync();
                 }
 
                 // создаем уведомления для активных записей, если это не индивидуальная тренировка

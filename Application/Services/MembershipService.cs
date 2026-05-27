@@ -2,7 +2,6 @@
 using Application.Models.DTOs;
 using Domain.Entities;
 using Domain.Interfaces;
-using Infrastructure.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Application.Services
 {
-    public class MembershipService(FitnessDb _db, PaymentService _paymentService, 
+    public class MembershipService(IUnitOfWork _uow, PaymentService _paymentService, 
         IMembershipRepository _membershipRep, IMembershipTypeRepository _membershipTypeRep)
     {
         public async Task<IEnumerable<MembershipDTO>> GetMembershipsAsync()
@@ -44,7 +43,7 @@ namespace Application.Services
 
         public async Task<MembershipDTO> AddMembershipAsync(CreateMembershipDTO membership)
         {
-            await using var transaction = await _db.Database.BeginTransactionAsync();
+            await using var transaction = await _uow.BeginTransactionAsync();
 
             try
             {

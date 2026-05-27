@@ -2,7 +2,6 @@
 using Application.Models.DTOs;
 using Domain.Entities;
 using Domain.Interfaces;
-using Infrastructure.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Application.Services
 {
-    public class TrainingReservationService(FitnessDb _db, ITrainingReservationRepository _reservationRep, ICoachRepository _coachRep, 
+    public class TrainingReservationService(IUnitOfWork _uow, ITrainingReservationRepository _reservationRep, ICoachRepository _coachRep, 
         TrainingService _trainingService, PaymentService _paymentService)
     {
         public async Task<IEnumerable<TrainingReservationDTO>> GetClientReservationsAsync(int clientId)
@@ -123,7 +122,7 @@ namespace Application.Services
             if (reservation.ReservationStatusId == (int)ReservationStatusEnum.Cancelled)
                 throw new ArgumentException("Нельзя совершить оплату отмененной записи");
 
-            await using var transaction = await _db.Database.BeginTransactionAsync();
+            await using var transaction = await _uow.BeginTransactionAsync();
 
             try
             {

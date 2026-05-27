@@ -13,6 +13,7 @@ using Application.Services;
 using Infrastructure.Repositories;
 using WebAPI.Middleware;
 using Infrastructure.BackgroundServices;
+using Infrastructure.UnitOfWork;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -92,6 +93,8 @@ builder.Services.AddScoped<ITrainingTypeRepository, TrainingTypeRepository>();
 builder.Services.AddScoped<TrainingTypeService>();
 
 builder.Services.AddScoped<AuthService>();
+
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 #endregion
 

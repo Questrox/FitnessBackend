@@ -4,7 +4,6 @@ using Application.Models.DTOs;
 using Domain.Entities;
 using Domain.Interfaces;
 using Domain.Models;
-using Infrastructure.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Application.Services
 {
-    public class ClientService(FitnessDb _db, AuthService _authService, IClientRepository _clientRep)
+    public class ClientService(IUnitOfWork _uow, AuthService _authService, IClientRepository _clientRep)
     {
         public async Task<IEnumerable<ClientDTO>> GetClientsAsync()
         {
@@ -84,7 +83,7 @@ namespace Application.Services
         }
         public async Task<AddClientResult> AddClientAsync(CreateClientDTO client)
         {
-            await using var transaction = await _db.Database.BeginTransactionAsync();
+            await using var transaction = await _uow.BeginTransactionAsync();
 
             try
             {

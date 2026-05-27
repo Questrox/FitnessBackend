@@ -3,7 +3,6 @@ using Application.Models.CreateDTOs;
 using Application.Models.DTOs;
 using Domain.Entities;
 using Domain.Interfaces;
-using Infrastructure.Data;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using System;
@@ -14,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Application.Services
 {
-    public class CoachService(FitnessDb _db, UserManager<User> _userManager, AuthService _authService, 
+    public class CoachService(IUnitOfWork _uow, UserManager<User> _userManager, AuthService _authService, 
         ICoachRepository _coachRep, IWebHostEnvironment _env)
     {
         public async Task<IEnumerable<CoachDTO>> GetCoachesAsync()
@@ -44,7 +43,7 @@ namespace Application.Services
             if (string.IsNullOrEmpty(coach.FullName))
                 throw new ArgumentException("Необходимо ввести ФИО");
 
-            await using var transaction = await _db.Database.BeginTransactionAsync();
+            await using var transaction = await _uow.BeginTransactionAsync();
 
             try
             {
@@ -116,7 +115,7 @@ namespace Application.Services
 
             string? newFileName = null;
             string? newFilePath = null;
-            await using var transaction = await _db.Database.BeginTransactionAsync();
+            await using var transaction = await _uow.BeginTransactionAsync();
 
             try
             {
