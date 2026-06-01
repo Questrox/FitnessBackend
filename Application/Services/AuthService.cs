@@ -31,7 +31,7 @@ namespace Application.Services
             _logger = logger;
         }
 
-        public async Task<string?> RegisterAsync(RegisterModel model, string userRole)
+        public virtual async Task<string?> RegisterAsync(RegisterModel model, string userRole)
         {
             var user = new User
             {
@@ -157,7 +157,7 @@ namespace Application.Services
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        public async Task<string> GenerateUsernameAsync(int length = 6)
+        public virtual async Task<string> GenerateUsernameAsync(int length = 6)
         {
             while (true)
             {
@@ -174,7 +174,7 @@ namespace Application.Services
             }
         }
 
-        public string GeneratePassword(int length = 8)
+        public virtual string GeneratePassword(int length = 8)
         {
             const string lower = "abcdefghijklmnopqrstuvwxyz";
             const string upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";

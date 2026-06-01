@@ -282,7 +282,7 @@ namespace Application.Services
 
             //if (DateTime.Now < existing.StartDate)
             //    throw new ArgumentException("Нельзя провести тренировку до ее начала");
-                        if (existing.TrainingStatusId == (int)TrainingStatusEnum.Completed)
+            if (existing.TrainingStatusId == (int)TrainingStatusEnum.Completed)
                 throw new ArgumentException("Данная тренировка уже проведена");
             if (existing.TrainingStatusId == (int)TrainingStatusEnum.Cancelled)
                 throw new ArgumentException("Данная тренировка отменена");
@@ -326,7 +326,7 @@ namespace Application.Services
             }
         }
 
-        public async Task<TrainingDTO> CancelTrainingAsync(int id, string userId, bool isCoach)
+        public virtual async Task<TrainingDTO> CancelTrainingAsync(int id, string userId, bool isCoach)
         {
             var existing = await _trainingRep.GetTrainingByIdAsync(id) ??
                 throw new KeyNotFoundException($"Тренировка с Id {id} не найдена");

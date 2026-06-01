@@ -83,12 +83,32 @@ namespace Application.Services
         }
         public async Task<AddClientResult> AddClientAsync(CreateClientDTO client)
         {
+            if (client == null)
+                throw new ArgumentNullException(nameof(client));
+
+            if (string.IsNullOrWhiteSpace(client.FullName))
+                throw new ArgumentException("ФИО не может быть пустым");
+
+            if (!System.Text.RegularExpressions.Regex.IsMatch(
+                    client.FullName,
+                    @"^[А-Яа-яЁё\s]+$"))
+                throw new ArgumentException("ФИО должно содержать только русские буквы и пробелы");
+
+            if (string.IsNullOrWhiteSpace(client.PhoneNumber))
+                throw new ArgumentException("Телефон не может быть пустым");
+
+            if (!System.Text.RegularExpressions.Regex.IsMatch(
+                    client.PhoneNumber,
+                    @"^\+7\d{10}$"))
+                throw new ArgumentException("Телефон должен быть в формате +7XXXXXXXXXX");
+
             await using var transaction = await _uow.BeginTransactionAsync();
 
             try
             {
                 var userName = await _authService.GenerateUsernameAsync();
                 var password = _authService.GeneratePassword();
+
                 RegisterModel model = new RegisterModel
                 {
                     FullName = client.FullName,
@@ -96,27 +116,27 @@ namespace Application.Services
                     UserName = userName,
                     Password = password
                 };
+
                 var result = await _authService.RegisterAsync(model, "User");
                 if (result == null)
                     throw new ArgumentException("Не удалось создать пользователя");
+
                 var newClient = new Client
                 {
                     Bonuses = 0,
                     UserId = result
                 };
+
                 await _clientRep.AddAsync(newClient);
 
                 await transaction.CommitAsync();
 
-                //newClient = await _clientRep.GetClientByIdAsync(newClient.Id);
-
-                var addResult = new AddClientResult
+                return new AddClientResult
                 {
                     ClientId = newClient.Id,
                     UserName = userName,
                     Password = password
                 };
-                return addResult;
             }
             catch
             {

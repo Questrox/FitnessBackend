@@ -9,7 +9,7 @@ namespace Domain.Interfaces
 {
     public interface IPaymentRepository : IRepository<Payment>
     {
-        Task<IEnumerable<Payment>> GetClientPayments(int clientId);
-        Task<Payment?> GetPaymentById(int id);
+        Task<IEnumerable<Payment>> GetClientPaymentsAsync(int clientId);
+        Task<Payment?> GetPaymentByIdAsync(int id);
     }
 }

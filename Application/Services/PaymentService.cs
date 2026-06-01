@@ -14,17 +14,17 @@ namespace Application.Services
     {
         public async Task<IEnumerable<PaymentDTO>> GetClientPaymentsAsync(int clientId)
         {
-            var payments = await _paymentRep.GetClientPayments(clientId);
+            var payments = await _paymentRep.GetClientPaymentsAsync(clientId);
             return payments.Select(p => new PaymentDTO(p));
         }
 
         public async Task<PaymentDTO?> GetPaymentByIdAsync(int id)
         {
-            var payment = await _paymentRep.GetPaymentById(id);
+            var payment = await _paymentRep.GetPaymentByIdAsync(id);
             return payment == null ? null : new PaymentDTO(payment);
         }
 
-        public async Task<PaymentDTO> AddPaymentAsync(CreatePaymentDTO dto)
+        public virtual async Task<PaymentDTO> AddPaymentAsync(CreatePaymentDTO dto)
         {
             var client = await _clientRep.GetClientByIdAsync(dto.ClientId);
             if (client == null)
@@ -53,14 +53,14 @@ namespace Application.Services
             await _paymentRep.AddAsync(payment);
             client.Bonuses -= dto.PaidWithBonuses;
             client.Bonuses += dto.Price / 100 * dto.CashbackPercentage;
-            payment = await _paymentRep.GetPaymentById(payment.Id);
+            payment = await _paymentRep.GetPaymentByIdAsync(payment.Id);
 
             return new PaymentDTO(payment);
         }
 
         public async Task<PaymentDTO> UpdatePaymentAsync(PaymentDTO dto)
         {
-            var existing = await _paymentRep.GetPaymentById(dto.Id) ??
+            var existing = await _paymentRep.GetPaymentByIdAsync(dto.Id) ??
                 throw new KeyNotFoundException($"Платеж с Id {dto.Id} не найден");
 
             existing.Date = dto.Date;
@@ -75,14 +75,14 @@ namespace Application.Services
 
         public async Task DeletePayment(int id)
         {
-            var payment = await _paymentRep.GetPaymentById(id) ??
+            var payment = await _paymentRep.GetPaymentByIdAsync(id) ??
                 throw new KeyNotFoundException($"Платеж с Id {id} не найден");
 
             await _paymentRep.DeleteAsync(payment);
         }
         public async Task SoftDeletePayment(int id)
         {
-            var payment = await _paymentRep.GetPaymentById(id) ??
+            var payment = await _paymentRep.GetPaymentByIdAsync(id) ??
                 throw new KeyNotFoundException($"Платеж с Id {id} не найден");
 
             await _paymentRep.SoftDeleteAsync(payment);
